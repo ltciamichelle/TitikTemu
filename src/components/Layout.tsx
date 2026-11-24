@@ -31,7 +31,7 @@ export function Layout() {
   );
 
   const handleSelectBuilding = useCallback(
-    (id: string, initialFloor = 1) => {
+    (id: string, initialFloor = '1') => {
       selectBuilding(id, initialFloor);
       mapRef.current?.flyToBuilding(id);
     },

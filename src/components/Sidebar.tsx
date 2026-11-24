@@ -10,7 +10,7 @@ import { SearchResults } from './SearchResults';
 interface SidebarProps {
   buildings: Building[];
   selectedBuilding: Building | null;
-  onSelectBuilding: (id: string, initialFloor?: number) => void;
+  onSelectBuilding: (id: string, initialFloor?: string) => void;
   onClearSelection: () => void;
   /** 'floating' on tablet (340px rounded with 16px margin), 'docked' on desktop (400px full height) */
   mode: 'floating' | 'docked';
@@ -36,13 +36,14 @@ export function Sidebar({
 
   const filteredResults = searchBuildings(buildings, searchQuery);
   const allBuildingItems: SearchResultItem[] = buildings.map((building) => ({
+    key: building.id,
     building,
   }));
   const isSearching = searchQuery.trim().length > 0;
 
   function handlePick(item: SearchResultItem) {
     setQuery('');
-    onSelectBuilding(item.building.id, item.matchedRoom?.floor ?? 1);
+    onSelectBuilding(item.building.id, item.matchedRoom?.floor ?? '1');
   }
 
   return (

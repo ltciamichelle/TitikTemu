@@ -1,44 +1,277 @@
 {
-  "b518483234": {
-    "category": null,
+  "b518483242": {
+    "category": "admin",
+    "floorsOverride": 13,
+    "oldName": "Gedung A",
+    "oldNameVerified": false,
+    "verified": false,
+    "sourceNote": "UNTAR campus map (old building names). Verify on site.",
     "hours": null,
     "description": null,
     "photo": null,
-    "rooms": {}
-  },
-  "b518483236": {
-    "category": null,
-    "hours": null,
-    "description": null,
-    "photo": null,
-    "rooms": {}
-  },
-  "b518483239": {
-    "category": null,
-    "hours": null,
-    "description": null,
-    "photo": null,
-    "rooms": {}
-  },
-  "b518483240": {
-    "category": null,
-    "hours": null,
-    "description": null,
-    "photo": null,
-    "rooms": {}
+    "entranceOverride": null,
+    "rooms": {
+      "1": [
+        "Bank BNI 46 & Bank Mega"
+      ],
+      "2": [
+        "Kantor Yayasan Tarumanagara",
+        "Kantor Admisi/Pusat Layanan Informasi",
+        "BCA"
+      ],
+      "3": [
+        "Kantor Yayasan Tarumanagara",
+        "Ruang Auditorium"
+      ],
+      "4": [
+        "Kantor Yayasan Tarumanagara"
+      ],
+      "5": [
+        "Rektorat/ Sekretariat Universitas",
+        "Pusat Komputer Untar"
+      ],
+      "6": [
+        "Tarumanagara Knowledge Centre/TKC"
+      ],
+      "7": [
+        "Tarumanagara Knowledge Centre/TKC"
+      ],
+      "8": [
+        "Tarumanagara Knowledge Centre/TKC"
+      ],
+      "9": [
+        "Tarumanagara Knowledge Centre/TKC"
+      ],
+      "11": [
+        "Fakultas Ilmu Komunikasi"
+      ],
+      "12": [
+        "Fakultas Ilmu Komunikasi"
+      ],
+      "13": [
+        "Program Pascasarjana"
+      ]
+    }
   },
   "b518483241": {
-    "category": null,
+    "category": "admin",
+    "floorsOverride": 8,
+    "oldName": "Gedung B",
+    "oldNameVerified": false,
+    "verified": false,
+    "sourceNote": "UNTAR campus map (old building names). Verify on site.",
     "hours": null,
     "description": null,
     "photo": null,
-    "rooms": {}
+    "entranceOverride": null,
+    "rooms": {
+      "1": [
+        "Biro-biro Universitas",
+        "Lembaga Jaminan Mutu"
+      ],
+      "4": [
+        "Pusat Sumber Belajar/ PSB"
+      ],
+      "5": [
+        "Perpustakaan Universitas & FH"
+      ],
+      "6": [
+        "Biro-biro Universitas",
+        "Lembaga Penelitian, LPPM"
+      ],
+      "7": [
+        "Unit Kegiatan Mahasiswa/ UKM",
+        "Fakultas Hukum"
+      ],
+      "8": [
+        "Fakultas Hukum",
+        "PPKBH",
+        "Auditorium/ Ruang Serba Guna"
+      ]
+    }
   },
-  "b518483242": {
-    "category": null,
+  "b518483240": {
+    "category": "facility",
+    "floorsOverride": 8,
+    "oldName": "Gedung C",
+    "oldNameVerified": false,
+    "verified": false,
+    "sourceNote": "UNTAR campus map (old building names). Verify on site.",
     "hours": null,
     "description": null,
     "photo": null,
-    "rooms": {}
+    "entranceOverride": null,
+    "rooms": {
+      "B1": [
+        "Parkir motor"
+      ],
+      "1": [
+        "Food Court",
+        "Lab FTM",
+        "Photocopy, souvenir, ATM"
+      ],
+      "2": [
+        "Parkir mobil"
+      ],
+      "3": [
+        "Parkir mobil"
+      ],
+      "4": [
+        "Parkir mobil"
+      ],
+      "5": [
+        "Parkir mobil"
+      ],
+      "6": [
+        "Parkir mobil"
+      ],
+      "7": [
+        "Parkir mobil"
+      ],
+      "8": [
+        "Lapangan tenis",
+        "Lapangan basket/ Voli/ Bulutangkis"
+      ]
+    }
+  },
+  "b518483239": {
+    "category": "faculty",
+    "floorsOverride": 8,
+    "oldName": "Gedung D, E, F",
+    "oldNameVerified": false,
+    "verified": false,
+    "sourceNote": "UNTAR campus map (old building names). Verify on site.",
+    "hours": null,
+    "description": null,
+    "photo": null,
+    "entranceOverride": null,
+    "rooms": {
+      "1": [
+        "Fakultas Kedokteran (E)",
+        "Laboratorium FK (E)",
+        "Kantor Pos, Poliklinik & Koperasi (D)"
+      ],
+      "2": [
+        "Fakultas Kedokteran (E)",
+        "Laboratorium FK (E)",
+        "Perpustakaan FK (F)",
+        "UBKP (F. Psikologi) (D)",
+        "Lab. Fak. Psikologi (D)"
+      ],
+      "3": [
+        "Fakultas Kedokteran (E)",
+        "Program Studi Elektro (D)"
+      ],
+      "4": [
+        "Fakultas Kedokteran (E)",
+        "Program Studi PWK (D)"
+      ],
+      "5": [
+        "Fakultas Teknik (D)",
+        "Program Studi Sipil (D)",
+        "Program Studi Mesin (E, F)"
+      ],
+      "6": [
+        "Program Studi Sipil (D)",
+        "Program Studi Teknik Industri (D)"
+      ],
+      "7": [
+        "Program Studi Arsitektur (D)"
+      ],
+      "8": [
+        "Studi Arsitektur & Galeri (D, F)"
+      ]
+    }
+  },
+  "b518483236": {
+    "category": "faculty",
+    "floorsOverride": 8,
+    "oldName": "Gedung G",
+    "oldNameVerified": false,
+    "verified": false,
+    "sourceNote": "UNTAR campus map (old building names). Verify on site.",
+    "hours": null,
+    "description": null,
+    "photo": null,
+    "entranceOverride": null,
+    "rooms": {
+      "1": [
+        "Laboratorium FT Sipil"
+      ],
+      "2": [
+        "Fakultas Psikologi",
+        "Perpustakaan Fak. Psikologi"
+      ],
+      "3": [
+        "Fakultas Psikologi"
+      ],
+      "4": [
+        "Fakultas Seni Rupa dan Desain"
+      ],
+      "5": [
+        "Fakultas Seni Rupa dan Desain"
+      ],
+      "6": [
+        "Fakultas Teknik"
+      ],
+      "7": [
+        "Fakultas Teknik"
+      ],
+      "8": [
+        "Perpustakaan FT, FTI & FSRD"
+      ]
+    }
+  },
+  "b518483234": {
+    "category": "faculty",
+    "floorsOverride": 13,
+    "oldName": "Gedung H",
+    "oldNameVerified": false,
+    "verified": false,
+    "sourceNote": "UNTAR campus map (old building names). Verify on site.",
+    "hours": null,
+    "description": null,
+    "photo": null,
+    "entranceOverride": null,
+    "rooms": {
+      "1": [
+        "Laboratorium FT Sipil"
+      ],
+      "2": [
+        "Fakultas Psikologi & Lab."
+      ],
+      "3": [
+        "Program Pascasarjana Psikologi"
+      ],
+      "4": [
+        "Fakultas Seni Rupa & Desain"
+      ],
+      "5": [
+        "Fakultas Seni Rupa & Desain"
+      ],
+      "6": [
+        "Fakultas Seni Rupa & Desain"
+      ],
+      "8": [
+        "Laboratorium/ Galeri FSRD"
+      ],
+      "9": [
+        "FTI/rg dosen & kuliah"
+      ],
+      "10": [
+        "FTI/rg dosen & kuliah",
+        "Laboratorium FTI"
+      ],
+      "11": [
+        "Fakultas Teknologi Informasi/ FTI",
+        "Laboratorium FTI"
+      ],
+      "12": [
+        "Laboratorium FTI"
+      ],
+      "13": [
+        "Laboratorium FTI"
+      ]
+    }
   }
 }

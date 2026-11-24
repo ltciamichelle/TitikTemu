@@ -8,7 +8,11 @@ import {
   Navigation,
   X,
 } from 'lucide-react';
-import { formatPinInitials } from '../lib/geo';
+import {
+  formatFloorLabel,
+  formatPinInitials,
+  getBuildingFloors,
+} from '../lib/geo';
 import { useAppStore } from '../store/useAppStore';
 import type { Building } from '../types';
 
@@ -55,9 +59,9 @@ export function BuildingCard({
   }, [selectedFloor, isExpanded, variant]);
 
   const initials = formatPinInitials(building.shortName);
-  const totalFloors = Math.max(1, building.floors ?? 1);
-  const floorNumbers = Array.from({ length: totalFloors }, (_, i) => i + 1);
-  const currentRooms = building.rooms[String(selectedFloor)] ?? [];
+  const floorKeys = getBuildingFloors(building);
+  const currentRooms = building.rooms[selectedFloor] ?? [];
+  const selectedFloorLabel = formatFloorLabel(selectedFloor);
 
   const isSheet = variant === 'sheet';
   const showFullBody = !isSheet || isExpanded;
@@ -201,6 +205,12 @@ export function BuildingCard({
               {building.name}
             </h2>
 
+            {building.oldNameVerified && building.oldName && (
+              <p className="mt-0.5 text-xs font-medium text-muted">
+                Previously {building.oldName}
+              </p>
+            )}
+
             {isSheet && !isExpanded && (
               <p className="mt-0.5 inline-flex items-center gap-1 text-xs font-medium text-muted">
                 <span>Tap for floors &amp; rooms</span>
@@ -250,11 +260,13 @@ export function BuildingCard({
             <div>
               <div className="mb-2 flex items-center justify-between gap-2">
                 <span className="text-xs font-bold uppercase tracking-wider text-muted">
-                  Floors ({totalFloors})
+                  Floors ({floorKeys.length})
                 </span>
                 {SHOW_DATA_NOTES && (
                   <span className="text-xs font-medium text-muted">
-                    Floors from OSM, to be verified
+                    {building.floorsOverride
+                      ? 'Unverified floor count'
+                      : 'Floors from OSM, to be verified'}
                   </span>
                 )}
               </div>
@@ -264,23 +276,23 @@ export function BuildingCard({
                 aria-label="Select floor"
                 className="no-scrollbar flex snap-x snap-mandatory gap-2 overflow-x-auto pb-1"
               >
-                {floorNumbers.map((floor) => {
-                  const isActive = selectedFloor === floor;
+                {floorKeys.map((floorKey) => {
+                  const isActive = selectedFloor === floorKey;
                   return (
                     <button
-                      key={floor}
+                      key={floorKey}
                       ref={isActive ? activeChipRef : null}
                       type="button"
                       role="tab"
                       aria-selected={isActive}
-                      onClick={() => setFloor(floor)}
+                      onClick={() => setFloor(floorKey)}
                       className={`flex min-h-[44px] min-w-[48px] shrink-0 snap-start items-center justify-center rounded-full px-3.5 text-sm font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                         isActive
                           ? 'bg-primary text-white shadow-soft-sm'
                           : 'bg-[#EEF1F0] text-ink hover:bg-mint/60'
                       }`}
                     >
-                      L{floor}
+                      {formatFloorLabel(floorKey)}
                     </button>
                   );
                 })}
@@ -291,7 +303,7 @@ export function BuildingCard({
             <div className="rounded-button bg-[#F4F8F6] p-3.5 md:bg-white">
               <div className="mb-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-muted">
                 <DoorOpen size={14} strokeWidth={1.8} />
-                <span>Rooms on L{selectedFloor}</span>
+                <span>Rooms on {selectedFloorLabel}</span>
               </div>
 
               {currentRooms.length > 0 ? (
@@ -307,7 +319,7 @@ export function BuildingCard({
                 </ul>
               ) : (
                 <p className="text-xs font-medium text-muted md:text-sm">
-                  Room list coming soon for L{selectedFloor}
+                  Room list coming soon for {selectedFloorLabel}
                 </p>
               )}
             </div>

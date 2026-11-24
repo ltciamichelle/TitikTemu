@@ -1,5 +1,5 @@
 import { Building2, DoorOpen } from 'lucide-react';
-import { formatPinInitials } from '../lib/geo';
+import { formatFloorLabel, formatPinInitials } from '../lib/geo';
 import type { SearchResultItem } from '../types';
 
 interface SearchResultsProps {
@@ -44,9 +44,12 @@ export function SearchResults({
       >
         {results.map((item) => {
           const { building: b, matchedRoom } = item;
-          const isSelected = selectedBuildingId === b.id;
+          const isSelected = !matchedRoom && selectedBuildingId === b.id;
+          const floorLabel = matchedRoom
+            ? formatFloorLabel(matchedRoom.floor)
+            : null;
           return (
-            <li key={b.id}>
+            <li key={item.key}>
               <button
                 type="button"
                 role="option"
@@ -68,23 +71,34 @@ export function SearchResults({
                   {formatPinInitials(b.shortName)}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-bold text-ink">
-                    {b.name}
-                  </p>
-                  <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
-                    <span className="inline-flex items-center gap-1 rounded-full bg-[#EEF1F0] px-2 py-0.5 text-xs font-medium text-muted">
-                      <Building2 size={12} strokeWidth={1.8} />
-                      {b.category
-                        ? b.category.charAt(0).toUpperCase() + b.category.slice(1)
-                        : 'Campus building'}
-                    </span>
-                    {matchedRoom && (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-mint px-2 py-0.5 text-xs font-semibold text-[#156A4D]">
-                        <DoorOpen size={12} strokeWidth={1.8} />
-                        L{matchedRoom.floor} • {matchedRoom.name}
-                      </span>
-                    )}
-                  </div>
+                  {matchedRoom ? (
+                    <>
+                      <p className="truncate text-sm font-bold text-ink">
+                        {matchedRoom.name}, {b.name}, {floorLabel}
+                      </p>
+                      <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-mint px-2 py-0.5 text-xs font-semibold text-[#156A4D]">
+                          <DoorOpen size={12} strokeWidth={1.8} />
+                          {floorLabel} • {b.name}
+                        </span>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <p className="truncate text-sm font-bold text-ink">
+                        {b.name}
+                      </p>
+                      <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-[#EEF1F0] px-2 py-0.5 text-xs font-medium text-muted">
+                          <Building2 size={12} strokeWidth={1.8} />
+                          {b.category
+                            ? b.category.charAt(0).toUpperCase() +
+                              b.category.slice(1)
+                            : 'Campus building'}
+                        </span>
+                      </div>
+                    </>
+                  )}
                 </div>
               </button>
             </li>

@@ -4,9 +4,15 @@ export type BuildingCategory = 'admin' | 'faculty' | 'facility' | 'food' | 'even
 
 export interface BuildingInfoEntry {
   category: BuildingCategory;
+  floorsOverride?: number | null;
+  oldName?: string | null;
+  oldNameVerified?: boolean;
+  verified?: boolean;
+  sourceNote?: string | null;
   hours: string | null;
   description: string | null;
   photo: string | null;
+  entranceOverride?: LngLat | null;
   rooms: Record<string, string[]>;
 }
 
@@ -48,13 +54,19 @@ export interface BuildingsGeoJSON {
 export interface Building extends BuildingProperties {
   centroid: LngLat;
   polygon: LngLat[][];
+  floorsOverride: number | null;
+  oldName: string | null;
+  oldNameVerified: boolean;
+  verified: boolean;
+  sourceNote: string | null;
   rooms: Record<string, string[]>;
 }
 
 export interface SearchResultItem {
+  key: string;
   building: Building;
   matchedRoom?: {
-    floor: number;
+    floor: string;
     name: string;
   };
 }

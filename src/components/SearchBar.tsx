@@ -7,7 +7,7 @@ import { SearchResults } from './SearchResults';
 
 interface SearchBarProps {
   buildings: Building[];
-  onPickBuilding: (id: string, initialFloor?: number) => void;
+  onPickBuilding: (id: string, initialFloor?: string) => void;
   /** 'floating' shows a dropdown below the pill (mobile). 'inline' renders only the pill input (sidebar renders SearchResults below). */
   mode?: 'floating' | 'inline';
 }
@@ -41,9 +41,9 @@ export function SearchBar({
   }, [mode]);
 
   function handleSelect(item: SearchResultItem) {
-    setQuery(item.building.name);
+    setQuery(item.matchedRoom ? item.matchedRoom.name : item.building.name);
     setIsOpen(false);
-    onPickBuilding(item.building.id, item.matchedRoom?.floor ?? 1);
+    onPickBuilding(item.building.id, item.matchedRoom?.floor ?? '1');
   }
 
   return (

@@ -131,6 +131,44 @@ export function formatPinInitials(shortName: string): string {
   return trimmed;
 }
 
+/**
+ * Format a floor key for display: "B1" -> "B1", "1" -> "L1", "13" -> "L13".
+ */
+export function formatFloorLabel(floorKey: string): string {
+  const trimmed = floorKey.trim();
+  if (/^b\d*$/i.test(trimmed)) {
+    return trimmed.toUpperCase();
+  }
+  return `L${trimmed}`;
+}
+
+/**
+ * Return ordered floor keys for a building using floorsOverride when set
+ * (falling back to OSM floors), prepending "B1" if basement rooms exist.
+ */
+export function getBuildingFloors(building: Building): string[] {
+  const maxFloor = Math.max(1, building.floorsOverride ?? building.floors ?? 1);
+  const floors: string[] = [];
+  if (Object.prototype.hasOwnProperty.call(building.rooms, 'B1')) {
+    floors.push('B1');
+  }
+  for (let i = 1; i <= maxFloor; i++) {
+    floors.push(String(i));
+  }
+  return floors;
+}
+
+function compareFloorKeys(a: string, b: string): number {
+  const aIsB = /^b/i.test(a);
+  const bIsB = /^b/i.test(b);
+  if (aIsB && !bIsB) return -1;
+  if (!aIsB && bIsB) return 1;
+  const na = Number.parseInt(a.replace(/\D/g, ''), 10);
+  const nb = Number.parseInt(b.replace(/\D/g, ''), 10);
+  if (Number.isNaN(na) || Number.isNaN(nb)) return a.localeCompare(b);
+  return na - nb;
+}
+
 export function extractBuildings(
   geojson: BuildingsGeoJSON,
   infoMap: BuildingInfoMap = {}
@@ -145,6 +183,11 @@ export function extractBuildings(
       hours: props.hours ?? extra?.hours ?? null,
       description: props.description ?? extra?.description ?? null,
       photo: props.photo ?? extra?.photo ?? null,
+      floorsOverride: extra?.floorsOverride ?? null,
+      oldName: extra?.oldName ?? null,
+      oldNameVerified: Boolean(extra?.oldNameVerified),
+      verified: Boolean(extra?.verified),
+      sourceNote: extra?.sourceNote ?? null,
       rooms: extra?.rooms ?? {},
       polygon: feature.geometry.coordinates,
       centroid: computePolygonCentroid(feature.geometry.coordinates[0] ?? []),
@@ -201,7 +244,7 @@ export function buildRoadsGeoJSON(graph: PathsGraph): RoadsGeoJSONResult {
 
 /**
  * Case-insensitive search matching building name, shortName, formatted initials,
- * AND room names from buildingInfo.json.
+ * verified oldName (only when oldNameVerified is true), AND room names from buildingInfo.json.
  */
 export function searchBuildings(
   buildings: Building[],
@@ -209,37 +252,47 @@ export function searchBuildings(
 ): SearchResultItem[] {
   const q = rawQuery.trim().toLowerCase();
   if (!q) {
-    return buildings.map((building) => ({ building }));
+    return buildings.map((building) => ({ key: building.id, building }));
   }
 
-  const results: SearchResultItem[] = [];
+  const buildingMatches: SearchResultItem[] = [];
+  const roomMatches: SearchResultItem[] = [];
 
   for (const b of buildings) {
     const name = b.name.toLowerCase();
     const shortName = b.shortName.toLowerCase();
     const initials = formatPinInitials(b.shortName).toLowerCase();
-
-    // Check room name matches across all floors
-    let matchedRoom: { floor: number; name: string } | undefined;
-    for (const [floorKey, roomList] of Object.entries(b.rooms)) {
-      const found = roomList.find((room) => room.toLowerCase().includes(q));
-      if (found) {
-        const parsedFloor = Number.parseInt(floorKey, 10);
-        matchedRoom = {
-          floor: Number.isNaN(parsedFloor) ? 1 : parsedFloor,
-          name: found,
-        };
-        break;
-      }
-    }
+    const verifiedOldName =
+      b.oldNameVerified && b.oldName ? b.oldName.toLowerCase() : '';
 
     const matchesBuilding =
-      name.includes(q) || shortName.includes(q) || initials.includes(q);
+      name.includes(q) ||
+      shortName.includes(q) ||
+      initials.includes(q) ||
+      (verifiedOldName.length > 0 && verifiedOldName.includes(q));
 
-    if (matchesBuilding || matchedRoom) {
-      results.push({ building: b, matchedRoom });
+    if (matchesBuilding) {
+      buildingMatches.push({ key: b.id, building: b });
+    }
+
+    // Search rooms in ascending floor order, deduplicating identical room names per building
+    const seenRooms = new Set<string>();
+    const sortedFloors = Object.keys(b.rooms).sort(compareFloorKeys);
+    for (const floorKey of sortedFloors) {
+      const roomList = b.rooms[floorKey] ?? [];
+      for (const room of roomList) {
+        if (!room.toLowerCase().includes(q)) continue;
+        const norm = room.toLowerCase();
+        if (seenRooms.has(norm)) continue;
+        seenRooms.add(norm);
+        roomMatches.push({
+          key: `${b.id}:${floorKey}:${room}`,
+          building: b,
+          matchedRoom: { floor: floorKey, name: room },
+        });
+      }
     }
   }
 
-  return results;
+  return [...buildingMatches, ...roomMatches];
 }
