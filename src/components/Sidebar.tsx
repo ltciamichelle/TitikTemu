@@ -4,6 +4,7 @@ import { useAppStore } from '../store/useAppStore';
 import type { AppTab, Building, SearchResultItem } from '../types';
 import { BuildingCard } from './BuildingCard';
 import { FriendsPanel } from './FriendsPanel';
+import { RoutePanel } from './RoutePanel';
 import { SearchBar } from './SearchBar';
 import { SearchResults } from './SearchResults';
 
@@ -33,6 +34,9 @@ export function Sidebar({
   const searchQuery = useAppStore((s) => s.searchQuery);
   const setQuery = useAppStore((s) => s.setQuery);
   const selectedBuildingId = useAppStore((s) => s.selectedBuildingId);
+  const route = useAppStore((s) => s.route);
+  const routeStatus = useAppStore((s) => s.routeStatus);
+  const endRoute = useAppStore((s) => s.endRoute);
 
   const filteredResults = searchBuildings(buildings, searchQuery);
   const allBuildingItems: SearchResultItem[] = buildings.map((building) => ({
@@ -125,6 +129,18 @@ export function Sidebar({
               selectedBuildingId={selectedBuildingId}
               onSelect={handlePick}
               heading={`Matching places (${filteredResults.length})`}
+            />
+          ) : selectedBuilding && routeStatus !== 'idle' ? (
+            <RoutePanel
+              building={selectedBuilding}
+              route={route}
+              routeStatus={routeStatus}
+              onBackToBuilding={endRoute}
+              onEndRoute={() => {
+                endRoute();
+                onClearSelection();
+              }}
+              variant="sidebar"
             />
           ) : selectedBuilding ? (
             <BuildingCard

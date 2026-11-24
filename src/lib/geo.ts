@@ -8,17 +8,14 @@ import type {
   PathsGraph,
   SearchResultItem,
 } from '../types';
+import { DEMO_USER_POSITION } from './constants';
+
+export { DEMO_USER_POSITION };
 
 export const CAMPUS_CENTER: LngLat = [106.789722, -6.168985];
 export const INITIAL_ZOOM = 17;
 export const MIN_ZOOM = 15;
 export const MAX_ZOOM = 20;
-
-/**
- * Fixed demo user position near the main campus road (node n3, west of Gedung I).
- * Stored as a constant so browser geolocation can replace it later.
- */
-export const DEMO_USER_POSITION: LngLat = [106.7887265, -6.1687792];
 
 export const SIDEBAR_WIDTH_DESKTOP = 400;
 export const SIDEBAR_WIDTH_TABLET = 340;
@@ -78,6 +75,28 @@ export function computeCampusBounds(
         if (lat > maxLat) maxLat = lat;
       }
     }
+  }
+
+  return [
+    [minLng, minLat],
+    [maxLng, maxLat],
+  ];
+}
+
+/**
+ * Compute bounding box [[minLng, minLat], [maxLng, maxLat]] for a list of coordinates.
+ */
+export function computeCoordsBounds(coords: LngLat[]): [LngLat, LngLat] {
+  let minLng = Infinity;
+  let maxLng = -Infinity;
+  let minLat = Infinity;
+  let maxLat = -Infinity;
+
+  for (const [lng, lat] of coords) {
+    if (lng < minLng) minLng = lng;
+    if (lng > maxLng) maxLng = lng;
+    if (lat < minLat) minLat = lat;
+    if (lat > maxLat) maxLat = lat;
   }
 
   return [

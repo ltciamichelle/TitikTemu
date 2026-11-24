@@ -30,6 +30,14 @@ export function createPastelMapStyle({
       type: 'geojson',
       data: buildings as unknown as GeoJSON.FeatureCollection,
     },
+    route: {
+      type: 'geojson',
+      data: { type: 'FeatureCollection', features: [] },
+    },
+    'route-entrance': {
+      type: 'geojson',
+      data: { type: 'FeatureCollection', features: [] },
+    },
   };
 
   const layers: StyleSpecification['layers'] = [
@@ -165,6 +173,60 @@ export function createPastelMapStyle({
       paint: {
         'line-color': '#2ED39A',
         'line-width': 2.2,
+      },
+    },
+    {
+      id: 'route-casing',
+      type: 'line',
+      source: 'route',
+      layout: {
+        'line-cap': 'round',
+        'line-join': 'round',
+      },
+      paint: {
+        'line-color': '#FFFFFF',
+        'line-width': 9,
+      },
+    },
+    {
+      id: 'route-line-regular',
+      type: 'line',
+      source: 'route',
+      filter: ['!=', ['get', 'manual'], true],
+      layout: {
+        'line-cap': 'round',
+        'line-join': 'round',
+      },
+      paint: {
+        'line-color': '#2ED39A',
+        'line-width': 5,
+        'line-dasharray': [0, 2],
+      },
+    },
+    {
+      id: 'route-line-manual',
+      type: 'line',
+      source: 'route',
+      filter: ['==', ['get', 'manual'], true],
+      layout: {
+        'line-cap': 'round',
+        'line-join': 'round',
+      },
+      paint: {
+        'line-color': '#9ADFC4',
+        'line-width': 5,
+        'line-dasharray': [1.5, 2],
+      },
+    },
+    {
+      id: 'route-entrance-dot',
+      type: 'circle',
+      source: 'route-entrance',
+      paint: {
+        'circle-radius': 6,
+        'circle-color': '#FF8A3D',
+        'circle-stroke-width': 2.5,
+        'circle-stroke-color': '#FFFFFF',
       },
     }
   );

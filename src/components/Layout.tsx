@@ -1,6 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useBreakpoint } from '../hooks/useMediaQuery';
+import {
+  CAMPUS_GEOLOCATION_MARGIN_M,
+  DEMO_USER_POSITION,
+} from '../lib/constants';
+import { isInsideCampusArea } from '../lib/routing';
 import { useAppStore } from '../store/useAppStore';
+import type { LngLat } from '../types';
 import { BottomTabBar } from './BottomTabBar';
 import { BuildingCard } from './BuildingCard';
 import { FriendsPanel } from './FriendsPanel';
@@ -10,6 +16,7 @@ import {
   MapView,
   type MapViewHandle,
 } from './MapView';
+import { RoutePanel } from './RoutePanel';
 import { SearchBar } from './SearchBar';
 import { Sidebar } from './Sidebar';
 
@@ -19,8 +26,13 @@ export function Layout() {
 
   const activeTab = useAppStore((s) => s.activeTab);
   const selectedBuildingId = useAppStore((s) => s.selectedBuildingId);
+  const route = useAppStore((s) => s.route);
+  const routeStatus = useAppStore((s) => s.routeStatus);
   const selectBuilding = useAppStore((s) => s.selectBuilding);
   const clearSelection = useAppStore((s) => s.clearSelection);
+  const setUserPosition = useAppStore((s) => s.setUserPosition);
+  const startRoute = useAppStore((s) => s.startRoute);
+  const endRoute = useAppStore((s) => s.endRoute);
 
   const mapRef = useRef<MapViewHandle>(null);
   const [toast, setToast] = useState<string | null>(null);
@@ -38,13 +50,48 @@ export function Layout() {
     [selectBuilding]
   );
 
-  const handleLocateStub = useCallback(() => {
-    setToast('Location comes later');
-  }, []);
+  const handleLocate = useCallback(() => {
+    if (!navigator.geolocation) {
+      setUserPosition(DEMO_USER_POSITION);
+      setToast('Location is off. Using a demo start point.');
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const coords: LngLat = [
+          position.coords.longitude,
+          position.coords.latitude,
+        ];
+        if (
+          isInsideCampusArea(
+            coords,
+            campusBuildings,
+            CAMPUS_GEOLOCATION_MARGIN_M
+          )
+        ) {
+          setUserPosition(coords);
+          if (routeStatus === 'active' && selectedBuildingId) {
+            startRoute(selectedBuildingId);
+          } else {
+            mapRef.current?.flyToCoord(coords);
+          }
+        } else {
+          setUserPosition(DEMO_USER_POSITION);
+          setToast('You are outside the campus. Using a demo start point.');
+        }
+      },
+      () => {
+        setUserPosition(DEMO_USER_POSITION);
+        setToast('Location is off. Using a demo start point.');
+      },
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 15000 }
+    );
+  }, [routeStatus, selectedBuildingId, setUserPosition, startRoute]);
 
   useEffect(() => {
     if (!toast) return;
-    const timer = window.setTimeout(() => setToast(null), 2200);
+    const timer = window.setTimeout(() => setToast(null), 3200);
     return () => window.clearTimeout(timer);
   }, [toast]);
 
@@ -129,7 +176,7 @@ export function Layout() {
           <MapControls
             onZoomIn={() => mapRef.current?.zoomIn()}
             onZoomOut={() => mapRef.current?.zoomOut()}
-            onLocate={handleLocateStub}
+            onLocate={handleLocate}
           />
           <div className="pointer-events-auto rounded-full bg-white/90 px-2.5 py-1 text-xs font-medium text-muted shadow-soft-sm backdrop-blur-[2px]">
             © OpenStreetMap contributors
@@ -137,14 +184,28 @@ export function Layout() {
         </div>
       )}
 
-      {/* Mobile (<768px): Bottom Sheet for selected building */}
+      {/* Mobile (<768px): Bottom Sheet for selected building or active route */}
       {isMobile && activeTab === 'map' && selectedBuilding && (
         <div className="pointer-events-none absolute inset-x-0 bottom-[76px] z-20">
-          <BuildingCard
-            building={selectedBuilding}
-            onClose={clearSelection}
-            variant="sheet"
-          />
+          {routeStatus !== 'idle' ? (
+            <RoutePanel
+              building={selectedBuilding}
+              route={route}
+              routeStatus={routeStatus}
+              onBackToBuilding={endRoute}
+              onEndRoute={() => {
+                endRoute();
+                clearSelection();
+              }}
+              variant="sheet"
+            />
+          ) : (
+            <BuildingCard
+              building={selectedBuilding}
+              onClose={clearSelection}
+              variant="sheet"
+            />
+          )}
         </div>
       )}
 

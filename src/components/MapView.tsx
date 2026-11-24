@@ -18,6 +18,7 @@ import {
   buildRoadsGeoJSON,
   CAMPUS_CENTER,
   computeCampusBounds,
+  computeCoordsBounds,
   DEMO_USER_POSITION,
   extractBuildings,
   getMapPadding,
@@ -26,6 +27,7 @@ import {
   MIN_ZOOM,
 } from '../lib/geo';
 import { createPastelMapStyle } from '../lib/mapStyle';
+import { routeToGeoJSON } from '../lib/routing';
 import { useAppStore } from '../store/useAppStore';
 import type {
   Building,
@@ -45,6 +47,7 @@ const contextModules = import.meta.glob('../data/context.geojson', {
 
 export interface MapViewHandle {
   flyToBuilding: (id: string) => void;
+  flyToCoord: (coord: [number, number]) => void;
   fitAllBuildings: () => void;
   zoomIn: () => void;
   zoomOut: () => void;
@@ -74,6 +77,7 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
   function MapView({ buildings, breakpoint, onSelectBuilding }, ref) {
     const mapContainerRef = useRef<HTMLDivElement>(null);
     const mapRef = useRef<maplibregl.Map | null>(null);
+    const userMarkerRef = useRef<maplibregl.Marker | null>(null);
     const breakpointRef = useRef<Breakpoint>(breakpoint);
     breakpointRef.current = breakpoint;
 
@@ -89,9 +93,13 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
     );
 
     const selectedBuildingId = useAppStore((s) => s.selectedBuildingId);
+    const userPosition = useAppStore((s) => s.userPosition);
+    const route = useAppStore((s) => s.route);
     const clearSelection = useAppStore((s) => s.clearSelection);
     const selectedIdRef = useRef<string | null>(selectedBuildingId);
     selectedIdRef.current = selectedBuildingId;
+    const userPositionRef = useRef(userPosition);
+    userPositionRef.current = userPosition;
 
     const buildingsById = useMemo(
       () => new Map(buildings.map((b) => [b.id, b])),
@@ -178,6 +186,20 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
             duration: 600,
           });
         },
+        flyToCoord(coord: [number, number]) {
+          const map = mapRef.current;
+          if (!map) return;
+          const padding = getMapPadding(
+            breakpointRef.current,
+            Boolean(selectedIdRef.current)
+          );
+          map.easeTo({
+            center: coord,
+            zoom: Math.max(map.getZoom(), 17.6),
+            padding,
+            duration: 550,
+          });
+        },
         fitAllBuildings() {
           fitAll(breakpointRef.current, true);
         },
@@ -239,14 +261,15 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
         });
         setMarkerPortals(portals);
 
-        // Create UserDot marker at fixed demo position
+        // Create UserDot marker at current user position (defaults to demo position)
         const uEl = document.createElement('div');
         const userMarker = new maplibregl.Marker({
           element: uEl,
           anchor: 'bottom',
         })
-          .setLngLat(DEMO_USER_POSITION)
+          .setLngLat(userPositionRef.current)
           .addTo(map);
+        userMarkerRef.current = userMarker;
         createdMarkers.push(userMarker);
         setUserDotEl(uEl);
 
@@ -293,6 +316,7 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
       return () => {
         resizeObserver.disconnect();
         createdMarkers.forEach((m) => m.remove());
+        userMarkerRef.current = null;
         map.remove();
         mapRef.current = null;
         setMapReady(false);
@@ -320,6 +344,55 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
       recomputeLabelOverlaps();
     }, [selectedBuildingId, mapReady, recomputeLabelOverlaps]);
 
+    // Sync userPosition onto UserDot marker
+    useEffect(() => {
+      userMarkerRef.current?.setLngLat(userPosition);
+    }, [userPosition]);
+
+    // Sync active walking route GeoJSON + entrance dot + fitBounds
+    useEffect(() => {
+      const map = mapRef.current;
+      if (!map || !mapReady) return;
+
+      const routeSource = map.getSource('route') as
+        | maplibregl.GeoJSONSource
+        | undefined;
+      routeSource?.setData(routeToGeoJSON(route));
+
+      const entranceSource = map.getSource('route-entrance') as
+        | maplibregl.GeoJSONSource
+        | undefined;
+      if (route?.destinationEntrance) {
+        entranceSource?.setData({
+          type: 'FeatureCollection',
+          features: [
+            {
+              type: 'Feature',
+              properties: {},
+              geometry: {
+                type: 'Point',
+                coordinates: route.destinationEntrance,
+              },
+            },
+          ],
+        });
+      } else {
+        entranceSource?.setData({
+          type: 'FeatureCollection',
+          features: [],
+        });
+      }
+
+      if (route && route.coords.length >= 2) {
+        const padding = getMapPadding(breakpointRef.current, true);
+        map.fitBounds(computeCoordsBounds(route.coords), {
+          padding,
+          maxZoom: 18.5,
+          duration: 550,
+        });
+      }
+    }, [route, mapReady]);
+
     // Re-apply responsive padding & resize whenever breakpoint changes
     const prevBreakpointRef = useRef<Breakpoint>(breakpoint);
     useEffect(() => {
@@ -330,6 +403,14 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
 
       map.resize();
       const padding = getMapPadding(breakpoint, Boolean(selectedBuildingId));
+      if (route && route.coords.length >= 2) {
+        map.fitBounds(computeCoordsBounds(route.coords), {
+          padding,
+          maxZoom: 18.5,
+          duration: 400,
+        });
+        return;
+      }
       if (selectedBuildingId) {
         const b = buildingsById.get(selectedBuildingId);
         if (b) {
@@ -342,7 +423,14 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
         maxZoom: 18.2,
         duration: 400,
       });
-    }, [breakpoint, mapReady, selectedBuildingId, buildingsById, campusBounds]);
+    }, [
+      breakpoint,
+      mapReady,
+      selectedBuildingId,
+      route,
+      buildingsById,
+      campusBounds,
+    ]);
 
     const showLabels = zoom >= 16.5;
 

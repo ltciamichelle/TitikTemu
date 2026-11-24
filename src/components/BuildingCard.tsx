@@ -36,6 +36,7 @@ export function BuildingCard({
 }: BuildingCardProps) {
   const selectedFloor = useAppStore((s) => s.selectedFloor);
   const setFloor = useAppStore((s) => s.setFloor);
+  const startRoute = useAppStore((s) => s.startRoute);
 
   // Mobile sheet starts in peek state and expands on tap or swipe up
   const [isExpanded, setIsExpanded] = useState(false);
@@ -340,12 +341,11 @@ export function BuildingCard({
 
           <button
             type="button"
-            disabled
-            aria-disabled="true"
-            className="flex min-h-[44px] flex-1 cursor-not-allowed items-center justify-center gap-2 rounded-button bg-primary/40 px-4 py-2.5 text-sm font-bold text-[#145B43]"
+            onClick={() => startRoute(building.id)}
+            className="flex min-h-[44px] flex-1 items-center justify-center gap-2 rounded-button bg-primary px-4 py-2.5 text-sm font-bold text-white shadow-soft-sm transition-colors hover:bg-[#25be89] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
             <Navigation size={16} strokeWidth={1.8} />
-            <span>Route comes next</span>
+            <span>Start route</span>
           </button>
         </div>
       </div>
