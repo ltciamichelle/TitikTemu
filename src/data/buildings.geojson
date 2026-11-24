@@ -1,0 +1,461 @@
+{
+ "type": "FeatureCollection",
+ "copyright": "(c) OpenStreetMap contributors (ODbL)",
+ "features": [
+  {
+   "type": "Feature",
+   "id": "way/518483234",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       106.7917423,
+       -6.1687432
+      ],
+      [
+       106.7917403,
+       -6.1688172
+      ],
+      [
+       106.791794,
+       -6.1688939
+      ],
+      [
+       106.7918603,
+       -6.1689019
+      ],
+      [
+       106.7919314,
+       -6.1688552
+      ],
+      [
+       106.7919512,
+       -6.1687854
+      ],
+      [
+       106.7919713,
+       -6.1687002
+      ],
+      [
+       106.791973,
+       -6.1687005
+      ],
+      [
+       106.7919959,
+       -6.1685981
+      ],
+      [
+       106.7920416,
+       -6.1686088
+      ],
+      [
+       106.792083,
+       -6.1684339
+      ],
+      [
+       106.7918778,
+       -6.1683859
+      ],
+      [
+       106.79184,
+       -6.1685452
+      ],
+      [
+       106.791813,
+       -6.1686652
+      ],
+      [
+       106.7918029,
+       -6.1686621
+      ],
+      [
+       106.7917876,
+       -6.1687264
+      ],
+      [
+       106.7917423,
+       -6.1687432
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "id": "b518483234",
+    "osmId": "way/518483234",
+    "name": "Gedung R",
+    "shortName": "R",
+    "kind": "building",
+    "category": null,
+    "floors": 20,
+    "heightM": 70.0,
+    "entrance": [
+     106.791973,
+     -6.1687005
+    ],
+    "entranceNode": "n100190",
+    "hours": null,
+    "description": null,
+    "photo": null,
+    "review": [
+     "floors from OSM, check on site",
+     "entrance guessed (nearest road), check on site",
+     "entrance linked by a guessed bridge, check the walking path"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "way/518483236",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       106.7912102,
+       -6.1687347
+      ],
+      [
+       106.7912102,
+       -6.1689534
+      ],
+      [
+       106.7916879,
+       -6.1689535
+      ],
+      [
+       106.7916879,
+       -6.1687348
+      ],
+      [
+       106.7912102,
+       -6.1687347
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "id": "b518483236",
+    "osmId": "way/518483236",
+    "name": "Gedung K",
+    "shortName": "K",
+    "kind": "building",
+    "category": null,
+    "floors": 20,
+    "heightM": 70.0,
+    "entrance": [
+     106.7912102,
+     -6.1687347
+    ],
+    "entranceNode": "n100192",
+    "hours": null,
+    "description": null,
+    "photo": null,
+    "review": [
+     "floors from OSM, check on site",
+     "entrance guessed (nearest road), check on site"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "way/518483239",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       106.7910978,
+       -6.1689081
+      ],
+      [
+       106.791143,
+       -6.1689071
+      ],
+      [
+       106.7911402,
+       -6.1687818
+      ],
+      [
+       106.7903955,
+       -6.1687983
+      ],
+      [
+       106.790398,
+       -6.1689127
+      ],
+      [
+       106.7904425,
+       -6.1689117
+      ],
+      [
+       106.7904448,
+       -6.1690126
+      ],
+      [
+       106.7908539,
+       -6.1690035
+      ],
+      [
+       106.7908566,
+       -6.169123
+      ],
+      [
+       106.7904166,
+       -6.1691327
+      ],
+      [
+       106.7904186,
+       -6.1692244
+      ],
+      [
+       106.7903733,
+       -6.1692254
+      ],
+      [
+       106.7903758,
+       -6.1693365
+      ],
+      [
+       106.7910749,
+       -6.169321
+      ],
+      [
+       106.7910729,
+       -6.1692301
+      ],
+      [
+       106.7911284,
+       -6.1692289
+      ],
+      [
+       106.7911256,
+       -6.1691066
+      ],
+      [
+       106.7911023,
+       -6.1691072
+      ],
+      [
+       106.7911011,
+       -6.1690555
+      ],
+      [
+       106.791099,
+       -6.1689608
+      ],
+      [
+       106.7910978,
+       -6.1689081
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "id": "b518483239",
+    "osmId": "way/518483239",
+    "name": "Gedung J dan L",
+    "shortName": "J dan L",
+    "kind": "building",
+    "category": null,
+    "floors": 20,
+    "heightM": 70.0,
+    "entrance": [
+     106.7903758,
+     -6.1693365
+    ],
+    "entranceNode": "n100194",
+    "hours": null,
+    "description": null,
+    "photo": null,
+    "review": [
+     "floors from OSM, check on site",
+     "entrance guessed (nearest road), check on site"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "way/518483240",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       106.7893937,
+       -6.169233
+      ],
+      [
+       106.7894029,
+       -6.1694657
+      ],
+      [
+       106.7901566,
+       -6.1694363
+      ],
+      [
+       106.7901474,
+       -6.1692037
+      ],
+      [
+       106.7893937,
+       -6.169233
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "id": "b518483240",
+    "osmId": "way/518483240",
+    "name": "Gedung P",
+    "shortName": "P",
+    "kind": "building",
+    "category": null,
+    "floors": 20,
+    "heightM": 70.0,
+    "entrance": [
+     106.7894029,
+     -6.1694657
+    ],
+    "entranceNode": "n100196",
+    "hours": null,
+    "description": null,
+    "photo": null,
+    "review": [
+     "floors from OSM, check on site",
+     "entrance guessed (nearest road), check on site"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "way/518483241",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       106.7893569,
+       -6.1688621
+      ],
+      [
+       106.7893615,
+       -6.16899
+      ],
+      [
+       106.7894013,
+       -6.1689886
+      ],
+      [
+       106.7894039,
+       -6.1690612
+      ],
+      [
+       106.790203,
+       -6.1690327
+      ],
+      [
+       106.7901958,
+       -6.1688322
+      ],
+      [
+       106.7893569,
+       -6.1688621
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "id": "b518483241",
+    "osmId": "way/518483241",
+    "name": "Gedung M",
+    "shortName": "M",
+    "kind": "building",
+    "category": null,
+    "floors": 20,
+    "heightM": 70.0,
+    "entrance": [
+     106.7893615,
+     -6.16899
+    ],
+    "entranceNode": "n100198",
+    "hours": null,
+    "description": null,
+    "photo": null,
+    "review": [
+     "floors from OSM, check on site",
+     "entrance guessed (nearest road), check on site"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "way/518483242",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       106.7887777,
+       -6.1691184
+      ],
+      [
+       106.7887784,
+       -6.169141
+      ],
+      [
+       106.7887799,
+       -6.1691922
+      ],
+      [
+       106.7887818,
+       -6.1692564
+      ],
+      [
+       106.7887905,
+       -6.1695446
+      ],
+      [
+       106.7893236,
+       -6.1695288
+      ],
+      [
+       106.7893116,
+       -6.1691303
+      ],
+      [
+       106.7893108,
+       -6.1691026
+      ],
+      [
+       106.7887777,
+       -6.1691184
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "id": "b518483242",
+    "osmId": "way/518483242",
+    "name": "Gedung I",
+    "shortName": "I",
+    "kind": "building",
+    "category": null,
+    "floors": 20,
+    "heightM": 70.0,
+    "entrance": [
+     106.7887784,
+     -6.169141
+    ],
+    "entranceNode": "n100200",
+    "hours": null,
+    "description": null,
+    "photo": null,
+    "review": [
+     "floors from OSM, check on site",
+     "entrance guessed (nearest road), check on site"
+    ]
+   }
+  }
+ ]
+}
