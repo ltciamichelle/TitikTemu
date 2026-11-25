@@ -1,21 +1,24 @@
 import type { StyleSpecification } from 'maplibre-gl';
-import type { BuildingsGeoJSON } from '../types';
+import { CONTEXT_3D_HEIGHT_M, FLOOR_HEIGHT_M } from './constants';
 import type { RoadsGeoJSONResult } from './geo';
 
 interface CreateStyleParams {
-  buildings: BuildingsGeoJSON;
+  buildings: GeoJSON.FeatureCollection;
   roads: RoadsGeoJSONResult;
   contextGeoJSON: GeoJSON.FeatureCollection | null;
+  context3DGeoJSON: GeoJSON.FeatureCollection | null;
 }
 
 /**
  * Custom MapLibre GL style with NO external tiles and NO glyphs.
- * All labels and pins are rendered as HTML markers.
+ * Includes both 2D flat layers (default visible) and 3D pastel fill-extrusion
+ * layers (default hidden), toggled cleanly without rebuilding sources.
  */
 export function createPastelMapStyle({
   buildings,
   roads,
   contextGeoJSON,
+  context3DGeoJSON,
 }: CreateStyleParams): StyleSpecification {
   const sources: StyleSpecification['sources'] = {
     'roads-regular': {
@@ -28,7 +31,7 @@ export function createPastelMapStyle({
     },
     buildings: {
       type: 'geojson',
-      data: buildings as unknown as GeoJSON.FeatureCollection,
+      data: buildings,
     },
     route: {
       type: 'geojson',
@@ -59,11 +62,19 @@ export function createPastelMapStyle({
       id: 'context-buildings-fill',
       type: 'fill',
       source: 'context-buildings',
+      layout: { visibility: 'visible' },
       paint: {
         'fill-color': '#E8EBEA',
         'fill-opacity': 1,
       },
     });
+  }
+
+  if (context3DGeoJSON) {
+    sources['context-3d'] = {
+      type: 'geojson',
+      data: context3DGeoJSON,
+    };
   }
 
   layers.push(
@@ -137,10 +148,12 @@ export function createPastelMapStyle({
         ],
       },
     },
+    // --- 2D Building Layers (hidden in 3D to prevent z-fighting) ---
     {
       id: 'buildings-fill',
       type: 'fill',
       source: 'buildings',
+      layout: { visibility: 'visible' },
       paint: {
         'fill-color': '#E1E5E4',
         'fill-opacity': 1,
@@ -150,6 +163,7 @@ export function createPastelMapStyle({
       id: 'buildings-edge',
       type: 'line',
       source: 'buildings',
+      layout: { visibility: 'visible' },
       paint: {
         'line-color': '#D5DAD8',
         'line-width': 1,
@@ -159,6 +173,7 @@ export function createPastelMapStyle({
       id: 'buildings-selected-fill',
       type: 'fill',
       source: 'buildings',
+      layout: { visibility: 'visible' },
       filter: ['==', ['get', 'id'], ''],
       paint: {
         'fill-color': '#C5F1E1',
@@ -169,12 +184,75 @@ export function createPastelMapStyle({
       id: 'buildings-selected-edge',
       type: 'line',
       source: 'buildings',
+      layout: { visibility: 'visible' },
       filter: ['==', ['get', 'id'], ''],
       paint: {
         'line-color': '#2ED39A',
         'line-width': 2.2,
       },
+    }
+  );
+
+  // --- 3D Fill-Extrusion Layers (hidden in 2D) ---
+  if (context3DGeoJSON) {
+    layers.push({
+      id: 'context-3d',
+      type: 'fill-extrusion',
+      source: 'context-3d',
+      layout: { visibility: 'none' },
+      paint: {
+        'fill-extrusion-color': '#E8EBEA',
+        'fill-extrusion-height': CONTEXT_3D_HEIGHT_M,
+        'fill-extrusion-base': 0,
+        'fill-extrusion-opacity': 0.9,
+        'fill-extrusion-vertical-gradient': true,
+      },
+    });
+  }
+
+  layers.push(
+    {
+      id: 'buildings-3d',
+      type: 'fill-extrusion',
+      source: 'buildings',
+      layout: { visibility: 'none' },
+      paint: {
+        'fill-extrusion-color': [
+          'match',
+          ['get', 'category'],
+          'admin',
+          '#BFE8D8',
+          'faculty',
+          '#C9D3F0',
+          'facility',
+          '#F7DDB0',
+          'food',
+          '#F8C9B8',
+          'event',
+          '#F3C6D8',
+          '#DDE6E2',
+        ],
+        'fill-extrusion-height': ['coalesce', ['get', 'estimatedHeightM'], 14],
+        'fill-extrusion-base': 0,
+        'fill-extrusion-opacity': 0.92,
+        'fill-extrusion-vertical-gradient': true,
+      },
     },
+    {
+      id: 'selected-floor-3d',
+      type: 'fill-extrusion',
+      source: 'buildings',
+      layout: { visibility: 'none' },
+      filter: ['==', ['get', 'id'], ''],
+      paint: {
+        'fill-extrusion-color': '#2ED39A',
+        'fill-extrusion-base': 0,
+        'fill-extrusion-height': FLOOR_HEIGHT_M,
+        'fill-extrusion-opacity': 1,
+        'fill-extrusion-vertical-gradient': true,
+      },
+    },
+    // --- Dotted Route Layers (ALWAYS above 3D extrusion layers) ---
     {
       id: 'route-casing',
       type: 'line',

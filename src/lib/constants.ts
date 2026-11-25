@@ -8,3 +8,15 @@ export const DEMO_USER_POSITION: LngLat = [106.7887265, -6.1687792];
 
 /** Margin in meters around the 6 campus buildings for accepting real geolocation. */
 export const CAMPUS_GEOLOCATION_MARGIN_M = 150;
+
+/** Feature flag for 3D pastel isometric map view (defaults to true). */
+export const ENABLE_3D: boolean = import.meta.env.VITE_ENABLE_3D !== 'false';
+
+/** Estimated meters per floor for 3D extrusion (visual estimate only). */
+export const FLOOR_HEIGHT_M = 3.5;
+
+/** Flat extrusion height for surrounding context buildings in 3D. */
+export const CONTEXT_3D_HEIGHT_M = 8;
+
+/** Distance filter (meters from campus center) for context buildings in 3D for smooth mobile performance. */
+export const CONTEXT_3D_RADIUS_M = 250;

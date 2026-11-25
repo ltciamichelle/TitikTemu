@@ -1,9 +1,28 @@
-export function UserDot() {
+import { STATUS_BUBBLE_LABELS } from '../lib/friendsRepo';
+import type { FriendStatus } from '../types';
+
+interface UserDotProps {
+  status?: FriendStatus;
+  showStatusBubble?: boolean;
+}
+
+export function UserDot({
+  status = null,
+  showStatusBubble = false,
+}: UserDotProps) {
+  const bubbleText =
+    showStatusBubble && status ? STATUS_BUBBLE_LABELS[status] : null;
+
   return (
     <div
       className="pointer-events-none flex flex-col items-center select-none"
-      aria-label="Your demo location"
+      aria-label="Your location"
     >
+      {bubbleText && (
+        <span className="mb-1 whitespace-nowrap rounded-full bg-primary px-2.5 py-0.5 text-[11px] font-bold text-white shadow-soft-sm">
+          {bubbleText}
+        </span>
+      )}
       <span className="mb-1 rounded-full bg-white px-2.5 py-0.5 text-xs font-bold text-ink shadow-soft-sm">
         You
       </span>

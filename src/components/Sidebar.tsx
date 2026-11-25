@@ -3,6 +3,7 @@ import { searchBuildings } from '../lib/geo';
 import { useAppStore } from '../store/useAppStore';
 import type { AppTab, Building, SearchResultItem } from '../types';
 import { BuildingCard } from './BuildingCard';
+import { FriendCard } from './FriendCard';
 import { FriendsPanel } from './FriendsPanel';
 import { RoutePanel } from './RoutePanel';
 import { SearchBar } from './SearchBar';
@@ -12,6 +13,7 @@ interface SidebarProps {
   buildings: Building[];
   selectedBuilding: Building | null;
   onSelectBuilding: (id: string, initialFloor?: string) => void;
+  onFocusFriend: (userId: string) => void;
   onClearSelection: () => void;
   /** 'floating' on tablet (340px rounded with 16px margin), 'docked' on desktop (400px full height) */
   mode: 'floating' | 'docked';
@@ -26,6 +28,7 @@ export function Sidebar({
   buildings,
   selectedBuilding,
   onSelectBuilding,
+  onFocusFriend,
   onClearSelection,
   mode,
 }: SidebarProps) {
@@ -34,9 +37,19 @@ export function Sidebar({
   const searchQuery = useAppStore((s) => s.searchQuery);
   const setQuery = useAppStore((s) => s.setQuery);
   const selectedBuildingId = useAppStore((s) => s.selectedBuildingId);
+  const selectedFriendId = useAppStore((s) => s.selectedFriendId);
+  const friends = useAppStore((s) => s.friends);
   const route = useAppStore((s) => s.route);
   const routeStatus = useAppStore((s) => s.routeStatus);
+  const startRoute = useAppStore((s) => s.startRoute);
   const endRoute = useAppStore((s) => s.endRoute);
+
+  const selectedFriend = selectedFriendId
+    ? friends.find((f) => f.user.id === selectedFriendId) ?? null
+    : null;
+  const selectedFriendBuilding = selectedFriend?.presence.buildingId
+    ? buildings.find((b) => b.id === selectedFriend.presence.buildingId) ?? null
+    : null;
 
   const filteredResults = searchBuildings(buildings, searchQuery);
   const allBuildingItems: SearchResultItem[] = buildings.map((building) => ({
@@ -130,6 +143,14 @@ export function Sidebar({
               onSelect={handlePick}
               heading={`Matching places (${filteredResults.length})`}
             />
+          ) : selectedFriend ? (
+            <FriendCard
+              friend={selectedFriend}
+              building={selectedFriendBuilding}
+              onRouteToBuilding={(buildingId) => startRoute(buildingId)}
+              onClose={onClearSelection}
+              variant="sidebar"
+            />
           ) : selectedBuilding && routeStatus !== 'idle' ? (
             <RoutePanel
               building={selectedBuilding}
@@ -157,7 +178,11 @@ export function Sidebar({
             />
           )
         ) : (
-          <FriendsPanel variant="sidebar" />
+          <FriendsPanel
+            buildings={buildings}
+            onFocusFriend={onFocusFriend}
+            variant="sidebar"
+          />
         )}
       </div>
     </aside>

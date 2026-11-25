@@ -8,7 +8,11 @@ import type {
   PathsGraph,
   SearchResultItem,
 } from '../types';
-import { DEMO_USER_POSITION } from './constants';
+import {
+  CONTEXT_3D_RADIUS_M,
+  DEMO_USER_POSITION,
+  FLOOR_HEIGHT_M,
+} from './constants';
 
 export { DEMO_USER_POSITION };
 
@@ -212,6 +216,102 @@ export function extractBuildings(
       centroid: computePolygonCentroid(feature.geometry.coordinates[0] ?? []),
     };
   });
+}
+
+/**
+ * Estimated building height in meters: (floorsOverride ?? floors ?? 1) * 3.5 m.
+ * Visual estimate only — never presented as exact measurement.
+ */
+export function getEstimatedBuildingHeightM(building: {
+  floorsOverride?: number | null;
+  floors?: number | null;
+}): number {
+  const effectiveFloors = Math.max(
+    1,
+    building.floorsOverride ?? building.floors ?? 1
+  );
+  return effectiveFloors * FLOOR_HEIGHT_M;
+}
+
+/**
+ * Enrich BuildingsGeoJSON in memory with `category` and `estimatedHeightM`
+ * so MapLibre fill-extrusion expressions evaluate on the GPU without per-frame JS.
+ */
+export function enrichBuildingsGeoJSON(
+  geojson: BuildingsGeoJSON,
+  infoMap: BuildingInfoMap = {}
+): GeoJSON.FeatureCollection {
+  return {
+    type: 'FeatureCollection',
+    features: geojson.features.map((feature) => {
+      const props = feature.properties;
+      const extra = infoMap[props.id];
+      const category = props.category ?? extra?.category ?? null;
+      const estimatedHeightM = getEstimatedBuildingHeightM({
+        floorsOverride: extra?.floorsOverride ?? null,
+        floors: props.floors,
+      });
+      return {
+        ...feature,
+        properties: {
+          ...props,
+          category,
+          estimatedHeightM,
+        },
+      };
+    }),
+  };
+}
+
+/**
+ * Filter context.geojson features to those within radiusM of campus center
+ * so 3D extrusion remains smooth on mid-range mobile GPUs.
+ */
+export function filterContextFor3D(
+  contextGeoJSON: GeoJSON.FeatureCollection | null,
+  radiusM = CONTEXT_3D_RADIUS_M
+): GeoJSON.FeatureCollection | null {
+  if (!contextGeoJSON) return null;
+  const DEG_TO_RAD = Math.PI / 180;
+  const EARTH_R = 6371000;
+  const avgLatRad = CAMPUS_CENTER[1] * DEG_TO_RAD;
+  const cosLat = Math.cos(avgLatRad);
+
+  const features = contextGeoJSON.features.filter((f) => {
+    const geom = f.geometry;
+    let sample: number[] | undefined;
+    if (geom.type === 'Polygon') {
+      sample = geom.coordinates[0]?.[0];
+    } else if (geom.type === 'MultiPolygon') {
+      sample = geom.coordinates[0]?.[0]?.[0];
+    }
+    if (!sample || sample.length < 2) return false;
+    const dx = (sample[0] - CAMPUS_CENTER[0]) * DEG_TO_RAD * cosLat * EARTH_R;
+    const dy = (sample[1] - CAMPUS_CENTER[1]) * DEG_TO_RAD * EARTH_R;
+    return Math.hypot(dx, dy) <= radiusM;
+  });
+
+  return { type: 'FeatureCollection', features };
+}
+
+/**
+ * Compute vertical roof lift in screen pixels for a 3D building pin:
+ * offsetPx = heightM * pixelsPerMeter * sin(pitch)
+ * pixelsPerMeter = 1 / (156543.03392 * cos(lat) / 2^zoom)
+ */
+export function computeRoofLiftPx(
+  heightM: number,
+  lat: number,
+  zoom: number,
+  pitchDeg: number
+): number {
+  if (pitchDeg <= 0.5 || heightM <= 0) return 0;
+  const latRad = (lat * Math.PI) / 180;
+  const pitchRad = (pitchDeg * Math.PI) / 180;
+  const metersPerPixel = (156543.03392 * Math.cos(latRad)) / Math.pow(2, zoom);
+  if (metersPerPixel <= 0) return 0;
+  const pixelsPerMeter = 1 / metersPerPixel;
+  return heightM * pixelsPerMeter * Math.sin(pitchRad);
 }
 
 export interface RoadsGeoJSONResult {

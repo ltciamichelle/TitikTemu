@@ -7,6 +7,7 @@ interface PlaceMarkerProps {
   isSelected: boolean;
   showLabel: boolean;
   isLabelHiddenByOverlap: boolean;
+  liftOffsetPx?: number;
   onSelect: (id: string) => void;
   onHoverChange?: (id: string | null) => void;
 }
@@ -16,6 +17,7 @@ export function PlaceMarker({
   isSelected,
   showLabel,
   isLabelHiddenByOverlap,
+  liftOffsetPx = 0,
   onSelect,
   onHoverChange,
 }: PlaceMarkerProps) {
@@ -27,6 +29,11 @@ export function PlaceMarker({
   return (
     <div
       className="flex flex-col items-center select-none"
+      style={
+        liftOffsetPx > 0
+          ? { transform: `translateY(-${Math.round(liftOffsetPx)}px)` }
+          : undefined
+      }
       onMouseEnter={() => {
         setIsHovered(true);
         onHoverChange?.(building.id);

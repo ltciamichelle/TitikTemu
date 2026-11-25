@@ -93,3 +93,51 @@ export interface PathsGraph {
 }
 
 export type AppTab = 'map' | 'friends';
+
+export type FriendStatus = 'study_buddy' | 'lunch_buddy' | 'in_class' | null;
+
+export interface User {
+  id: string;
+  username: string;
+  displayName: string;
+  avatarColor: string;
+}
+
+export interface Friendship {
+  userA: string;
+  userB: string;
+  status: 'pending' | 'accepted';
+}
+
+/**
+ * Building-level presence only. Never stores exact GPS coordinates or history.
+ */
+export interface Presence {
+  userId: string;
+  buildingId: string | null;
+  status: FriendStatus;
+  shareOn: boolean;
+  ghost: boolean;
+  updatedAt: number;
+  expiresAt: number | null;
+}
+
+export interface FriendRecord {
+  user: User;
+  friendship: Friendship;
+  presence: Presence;
+}
+
+export interface PendingRequestRecord {
+  user: User;
+  friendship: Friendship;
+  direction: 'incoming' | 'outgoing';
+}
+
+export type SendRequestResult =
+  | { ok: true; user: User; message: string }
+  | {
+      ok: false;
+      reason: 'not_found' | 'already_friends' | 'already_pending';
+      message: string;
+    };
