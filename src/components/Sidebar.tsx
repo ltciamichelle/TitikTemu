@@ -1,7 +1,9 @@
 import { Map, MapPin, Users } from 'lucide-react';
+import { ENABLE_ILLUSTRATED } from '../lib/constants';
 import { searchBuildings } from '../lib/geo';
 import { useAppStore } from '../store/useAppStore';
 import type { AppTab, Building, SearchResultItem } from '../types';
+import { ArrivalCard } from './ArrivalCard';
 import { BuildingCard } from './BuildingCard';
 import { FriendCard } from './FriendCard';
 import { FriendsPanel } from './FriendsPanel';
@@ -15,6 +17,7 @@ interface SidebarProps {
   onSelectBuilding: (id: string, initialFloor?: string) => void;
   onFocusFriend: (userId: string) => void;
   onClearSelection: () => void;
+  onDriftTest?: () => void;
   /** 'floating' on tablet (340px rounded with 16px margin), 'docked' on desktop (400px full height) */
   mode: 'floating' | 'docked';
 }
@@ -30,6 +33,7 @@ export function Sidebar({
   onSelectBuilding,
   onFocusFriend,
   onClearSelection,
+  onDriftTest,
   mode,
 }: SidebarProps) {
   const activeTab = useAppStore((s) => s.activeTab);
@@ -37,10 +41,12 @@ export function Sidebar({
   const searchQuery = useAppStore((s) => s.searchQuery);
   const setQuery = useAppStore((s) => s.setQuery);
   const selectedBuildingId = useAppStore((s) => s.selectedBuildingId);
+  const selectedFloor = useAppStore((s) => s.selectedFloor);
   const selectedFriendId = useAppStore((s) => s.selectedFriendId);
   const friends = useAppStore((s) => s.friends);
   const route = useAppStore((s) => s.route);
   const routeStatus = useAppStore((s) => s.routeStatus);
+  const hasArrived = useAppStore((s) => s.hasArrived);
   const startRoute = useAppStore((s) => s.startRoute);
   const endRoute = useAppStore((s) => s.endRoute);
 
@@ -151,6 +157,17 @@ export function Sidebar({
               onClose={onClearSelection}
               variant="sidebar"
             />
+          ) : selectedBuilding && routeStatus === 'active' && hasArrived ? (
+            <ArrivalCard
+              building={selectedBuilding}
+              selectedFloor={selectedFloor}
+              onBackToBuilding={endRoute}
+              onDone={() => {
+                endRoute();
+                onClearSelection();
+              }}
+              variant="sidebar"
+            />
           ) : selectedBuilding && routeStatus !== 'idle' ? (
             <RoutePanel
               building={selectedBuilding}
@@ -161,6 +178,7 @@ export function Sidebar({
                 endRoute();
                 onClearSelection();
               }}
+              onDriftTest={onDriftTest}
               variant="sidebar"
             />
           ) : selectedBuilding ? (
@@ -185,6 +203,16 @@ export function Sidebar({
           />
         )}
       </div>
+
+      {/* About / Info muted honesty note */}
+      {ENABLE_ILLUSTRATED && (
+        <div className="shrink-0 border-t border-[#EEF1F0] px-5 py-2.5">
+          <p className="text-[11px] font-medium text-muted">
+            Trees and surface details are illustrative. Building heights are
+            estimated.
+          </p>
+        </div>
+      )}
     </aside>
   );
 }

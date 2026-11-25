@@ -1,5 +1,9 @@
 import { create } from 'zustand';
-import { DEMO_USER_POSITION } from '../lib/constants';
+import {
+  DEMO_USER_POSITION,
+  ENABLE_ILLUSTRATED,
+  ENABLE_NAV3D,
+} from '../lib/constants';
 import {
   applyAutoStop,
   friendsRepo,
@@ -21,6 +25,10 @@ import type {
 
 export type RouteStatus = 'idle' | 'active' | 'no_path';
 export type MapMode = '2d' | '3d';
+export type CameraMode = '2d' | 'overview3d' | 'nav3d';
+export type PositionSource = 'sim' | 'gps';
+export type SimSpeed = 1 | 3 | 6;
+export type VisualStyle = 'flat' | 'illustrated';
 
 interface AppState {
   // Map / Building / Route state
@@ -29,6 +37,14 @@ interface AppState {
   searchQuery: string;
   activeTab: AppTab;
   mapMode: MapMode;
+  cameraMode: CameraMode;
+  visualStyle: VisualStyle;
+  followPaused: boolean;
+  positionSource: PositionSource;
+  distanceAlongM: number;
+  simSpeed: SimSpeed;
+  simPlaying: boolean;
+  hasArrived: boolean;
   userPosition: LngLat;
   route: RouteResult | null;
   routeStatus: RouteStatus;
@@ -49,8 +65,18 @@ interface AppState {
   setQuery: (q: string) => void;
   setTab: (t: AppTab) => void;
   setMapMode: (mode: MapMode) => void;
+  setCameraMode: (mode: CameraMode) => void;
+  setVisualStyle: (style: VisualStyle) => void;
+  setFollowPaused: (paused: boolean) => void;
+  setPositionSource: (source: PositionSource) => void;
+  setDistanceAlongM: (dist: number) => void;
+  setSimSpeed: (speed: SimSpeed) => void;
+  setSimPlaying: (playing: boolean) => void;
+  setHasArrived: (arrived: boolean) => void;
   setUserPosition: (pos: LngLat) => void;
   startRoute: (buildingId: string) => void;
+  enterNav3D: () => void;
+  recomputeRouteFrom: (origin: LngLat) => boolean;
   endRoute: () => void;
 
   // Friends & Privacy actions
@@ -79,7 +105,6 @@ const initialMyPresence: Presence = friendsRepo.getPresence(MY_USER_ID) ?? {
   updatedAt: Date.now(),
   expiresAt: null,
 };
-// Enable currently-sharing seeded friends by default so demo pins appear on map
 const initialVisibleFriendIds = initialFriends
   .filter((f) => f.presence.shareOn)
   .map((f) => f.user.id);
@@ -90,6 +115,14 @@ export const useAppStore = create<AppState>((set, get) => ({
   searchQuery: '',
   activeTab: 'map',
   mapMode: '2d',
+  cameraMode: '2d',
+  visualStyle: ENABLE_ILLUSTRATED ? 'illustrated' : 'flat',
+  followPaused: false,
+  positionSource: 'sim',
+  distanceAlongM: 0,
+  simSpeed: 1,
+  simPlaying: false,
+  hasArrived: false,
   userPosition: DEMO_USER_POSITION,
   route: null,
   routeStatus: 'idle',
@@ -102,36 +135,87 @@ export const useAppStore = create<AppState>((set, get) => ({
   selectedFriendId: null,
   manualBuildingOverride: false,
 
-  selectBuilding: (id, initialFloor = '1') =>
+  selectBuilding: (id, initialFloor = '1') => {
+    const prevCam = get().cameraMode;
     set({
       selectedBuildingId: id,
       selectedFloor: initialFloor,
       selectedFriendId: null,
       route: null,
       routeStatus: 'idle',
-    }),
+      distanceAlongM: 0,
+      simPlaying: false,
+      hasArrived: false,
+      followPaused: false,
+      cameraMode: prevCam === 'nav3d' ? 'overview3d' : prevCam,
+      mapMode: prevCam === '2d' ? '2d' : '3d',
+    });
+  },
   setFloor: (floor) => set({ selectedFloor: floor }),
-  clearSelection: () =>
+  clearSelection: () => {
+    const prevCam = get().cameraMode;
     set({
       selectedBuildingId: null,
       selectedFloor: '1',
       selectedFriendId: null,
       route: null,
       routeStatus: 'idle',
-    }),
+      distanceAlongM: 0,
+      simPlaying: false,
+      hasArrived: false,
+      followPaused: false,
+      cameraMode: prevCam === 'nav3d' ? 'overview3d' : prevCam,
+      mapMode: prevCam === '2d' ? '2d' : '3d',
+    });
+  },
   setQuery: (q) => set({ searchQuery: q }),
   setTab: (t) => set({ activeTab: t }),
-  setMapMode: (mode) => set({ mapMode: mode }),
+  setMapMode: (mode) =>
+    set({
+      mapMode: mode,
+      cameraMode: mode === '2d' ? '2d' : 'overview3d',
+      followPaused: false,
+    }),
+  setCameraMode: (mode) =>
+    set({
+      cameraMode: mode,
+      mapMode: mode === '2d' ? '2d' : '3d',
+      followPaused: false,
+    }),
+  setVisualStyle: (style) => set({ visualStyle: style }),
+  setFollowPaused: (paused) => set({ followPaused: paused }),
+  setPositionSource: (source) =>
+    set({
+      positionSource: source,
+      simPlaying: source === 'sim' ? get().simPlaying : false,
+    }),
+  setDistanceAlongM: (dist) => set({ distanceAlongM: dist }),
+  setSimSpeed: (speed) => set({ simSpeed: speed }),
+  setSimPlaying: (playing) => set({ simPlaying: playing }),
+  setHasArrived: (arrived) =>
+    set({
+      hasArrived: arrived,
+      simPlaying: arrived ? false : get().simPlaying,
+    }),
   setUserPosition: (pos) => set({ userPosition: pos }),
+
   startRoute: (buildingId) => {
-    const { userPosition } = get();
+    const { userPosition, cameraMode } = get();
     const result = routeFromUser(userPosition, buildingId);
     if (result) {
+      const autoNav3D =
+        ENABLE_NAV3D && (cameraMode === 'overview3d' || cameraMode === 'nav3d');
       set({
         selectedBuildingId: buildingId,
         selectedFriendId: null,
         route: result,
         routeStatus: 'active',
+        distanceAlongM: 0,
+        hasArrived: false,
+        followPaused: false,
+        cameraMode: autoNav3D ? 'nav3d' : cameraMode,
+        mapMode: autoNav3D ? '3d' : cameraMode === '2d' ? '2d' : '3d',
+        simPlaying: autoNav3D,
       });
     } else {
       set({
@@ -139,14 +223,55 @@ export const useAppStore = create<AppState>((set, get) => ({
         selectedFriendId: null,
         route: null,
         routeStatus: 'no_path',
+        distanceAlongM: 0,
+        simPlaying: false,
+        hasArrived: false,
       });
     }
   },
-  endRoute: () =>
+
+  enterNav3D: () => {
+    if (!ENABLE_NAV3D) return;
+    const { routeStatus, positionSource } = get();
+    if (routeStatus !== 'active') return;
+    set({
+      cameraMode: 'nav3d',
+      mapMode: '3d',
+      followPaused: false,
+      hasArrived: false,
+      simPlaying: positionSource === 'sim',
+    });
+  },
+
+  recomputeRouteFrom: (origin) => {
+    const { selectedBuildingId } = get();
+    if (!selectedBuildingId) return false;
+    const result = routeFromUser(origin, selectedBuildingId);
+    if (!result) return false;
+    set({
+      userPosition: origin,
+      route: result,
+      routeStatus: 'active',
+      distanceAlongM: 0,
+      hasArrived: false,
+      followPaused: false,
+    });
+    return true;
+  },
+
+  endRoute: () => {
+    const prevCam = get().cameraMode;
     set({
       route: null,
       routeStatus: 'idle',
-    }),
+      distanceAlongM: 0,
+      simPlaying: false,
+      hasArrived: false,
+      followPaused: false,
+      cameraMode: prevCam === 'nav3d' ? 'overview3d' : prevCam,
+      mapMode: prevCam === '2d' ? '2d' : '3d',
+    });
+  },
 
   setShareOn: (on, demoMode) => {
     const now = Date.now();
@@ -236,13 +361,19 @@ export const useAppStore = create<AppState>((set, get) => ({
     });
   },
 
-  selectFriend: (userId) =>
+  selectFriend: (userId) => {
+    const prevCam = get().cameraMode;
     set({
       selectedFriendId: userId,
       selectedBuildingId: userId ? null : get().selectedBuildingId,
       route: userId ? null : get().route,
       routeStatus: userId ? 'idle' : get().routeStatus,
-    }),
+      distanceAlongM: userId ? 0 : get().distanceAlongM,
+      simPlaying: userId ? false : get().simPlaying,
+      hasArrived: false,
+      cameraMode: userId && prevCam === 'nav3d' ? 'overview3d' : prevCam,
+    });
+  },
 
   checkAutoStop: (now = Date.now()) => {
     const { myPresence } = get();

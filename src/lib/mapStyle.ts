@@ -1,24 +1,27 @@
 import type { StyleSpecification } from 'maplibre-gl';
 import { CONTEXT_3D_HEIGHT_M, FLOOR_HEIGHT_M } from './constants';
 import type { RoadsGeoJSONResult } from './geo';
+import type { IllustratedAssets } from './illustrated';
 
 interface CreateStyleParams {
   buildings: GeoJSON.FeatureCollection;
   roads: RoadsGeoJSONResult;
   contextGeoJSON: GeoJSON.FeatureCollection | null;
   context3DGeoJSON: GeoJSON.FeatureCollection | null;
+  illustrated?: IllustratedAssets | null;
 }
 
 /**
  * Custom MapLibre GL style with NO external tiles and NO glyphs.
- * Includes both 2D flat layers (default visible) and 3D pastel fill-extrusion
- * layers (default hidden), toggled cleanly without rebuilding sources.
+ * Supports Flat (2D, Overview 3D, Nav 3D) and Illustrated decorative layers,
+ * toggled via visibility without rebuilding sources.
  */
 export function createPastelMapStyle({
   buildings,
   roads,
   contextGeoJSON,
   context3DGeoJSON,
+  illustrated = null,
 }: CreateStyleParams): StyleSpecification {
   const sources: StyleSpecification['sources'] = {
     'roads-regular': {
@@ -37,27 +40,118 @@ export function createPastelMapStyle({
       type: 'geojson',
       data: { type: 'FeatureCollection', features: [] },
     },
+    'route-done': {
+      type: 'geojson',
+      data: { type: 'FeatureCollection', features: [] },
+    },
     'route-entrance': {
       type: 'geojson',
       data: { type: 'FeatureCollection', features: [] },
     },
   };
 
-  const layers: StyleSpecification['layers'] = [
-    {
-      id: 'map-background',
-      type: 'background',
-      paint: {
-        'background-color': '#EEF1F0',
-      },
-    },
-  ];
-
   if (contextGeoJSON) {
     sources['context-buildings'] = {
       type: 'geojson',
       data: contextGeoJSON,
     };
+  }
+  if (context3DGeoJSON) {
+    sources['context-3d'] = {
+      type: 'geojson',
+      data: context3DGeoJSON,
+    };
+  }
+
+  if (illustrated) {
+    sources['ill-paving'] = { type: 'geojson', data: illustrated.paving };
+    sources['ill-shadows-2d'] = {
+      type: 'geojson',
+      data: illustrated.shadows2D,
+    };
+    sources['ill-shadows-3d'] = {
+      type: 'geojson',
+      data: illustrated.shadows3D,
+    };
+    sources['ill-building-bands'] = {
+      type: 'geojson',
+      data: illustrated.buildingBands,
+    };
+    sources['ill-building-roofs'] = {
+      type: 'geojson',
+      data: illustrated.buildingRoofs,
+    };
+    sources['ill-context-3d'] = {
+      type: 'geojson',
+      data: illustrated.contextExtrusions,
+    };
+    sources['ill-context-roofs'] = {
+      type: 'geojson',
+      data: illustrated.contextRoofs,
+    };
+    sources['ill-tree-grass'] = {
+      type: 'geojson',
+      data: illustrated.treeGrass,
+    };
+    sources['ill-tree-trunks'] = {
+      type: 'geojson',
+      data: illustrated.treeTrunks,
+    };
+    sources['ill-tree-canopies'] = {
+      type: 'geojson',
+      data: illustrated.treeCanopies,
+    };
+  }
+
+  const layers: StyleSpecification['layers'] = [
+    {
+      id: 'map-background',
+      type: 'background',
+      paint: {
+        'background-color': illustrated ? '#EFF3EC' : '#EEF1F0',
+      },
+    },
+  ];
+
+  // Illustrated ground paving + faint grass circles under trees (below roads & buildings)
+  if (illustrated) {
+    layers.push(
+      {
+        id: 'ill-paving-fill',
+        type: 'fill',
+        source: 'ill-paving',
+        layout: { visibility: 'none' },
+        paint: {
+          'fill-color': '#E8EDE6',
+          'fill-opacity': 1,
+        },
+      },
+      {
+        id: 'ill-tree-grass',
+        type: 'circle',
+        source: 'ill-tree-grass',
+        layout: { visibility: 'none' },
+        paint: {
+          'circle-color': '#DDEBD6',
+          'circle-opacity': 0.5,
+          'circle-radius': [
+            'interpolate',
+            ['exponential', 2],
+            ['zoom'],
+            15,
+            2,
+            17,
+            8,
+            19,
+            32,
+          ],
+          'circle-pitch-alignment': 'map',
+        },
+      }
+    );
+  }
+
+  if (contextGeoJSON) {
     layers.push({
       id: 'context-buildings-fill',
       type: 'fill',
@@ -70,11 +164,32 @@ export function createPastelMapStyle({
     });
   }
 
-  if (context3DGeoJSON) {
-    sources['context-3d'] = {
-      type: 'geojson',
-      data: context3DGeoJSON,
-    };
+  // Warm curb edge along roads (Illustrated mode only)
+  if (illustrated) {
+    layers.push({
+      id: 'ill-roads-curb',
+      type: 'line',
+      source: 'roads-regular',
+      layout: {
+        visibility: 'none',
+        'line-cap': 'round',
+        'line-join': 'round',
+      },
+      paint: {
+        'line-color': '#E3DCCB',
+        'line-width': [
+          'interpolate',
+          ['linear'],
+          ['zoom'],
+          15,
+          7,
+          17,
+          12,
+          20,
+          24,
+        ],
+      },
+    });
   }
 
   layers.push(
@@ -147,8 +262,39 @@ export function createPastelMapStyle({
           4.5,
         ],
       },
-    },
-    // --- 2D Building Layers (hidden in 3D to prevent z-fighting) ---
+    }
+  );
+
+  // Soft shadows BELOW buildings (Illustrated 2D and 3D)
+  if (illustrated) {
+    layers.push(
+      {
+        id: 'ill-shadows-2d',
+        type: 'fill',
+        source: 'ill-shadows-2d',
+        layout: { visibility: 'none' },
+        paint: {
+          'fill-color': '#1E2A3A',
+          'fill-opacity': 0.14,
+          'fill-translate': [0, 0],
+        },
+      },
+      {
+        id: 'ill-shadows-3d',
+        type: 'fill',
+        source: 'ill-shadows-3d',
+        layout: { visibility: 'none' },
+        paint: {
+          'fill-color': '#1E2A3A',
+          'fill-opacity': 0.14,
+          'fill-translate': [0, 0],
+        },
+      }
+    );
+  }
+
+  // --- 2D Building Layers ---
+  layers.push(
     {
       id: 'buildings-fill',
       type: 'fill',
@@ -193,7 +339,21 @@ export function createPastelMapStyle({
     }
   );
 
-  // --- 3D Fill-Extrusion Layers (hidden in 2D) ---
+  // 2D flat soft tree canopies (Illustrated 2D only)
+  if (illustrated) {
+    layers.push({
+      id: 'ill-tree-canopies-2d',
+      type: 'fill',
+      source: 'ill-tree-canopies',
+      layout: { visibility: 'none' },
+      paint: {
+        'fill-color': ['get', 'color'],
+        'fill-opacity': 0.88,
+      },
+    });
+  }
+
+  // --- Flat 3D Fill-Extrusion Layers ---
   if (context3DGeoJSON) {
     layers.push({
       id: 'context-3d',
@@ -210,34 +370,149 @@ export function createPastelMapStyle({
     });
   }
 
-  layers.push(
-    {
-      id: 'buildings-3d',
-      type: 'fill-extrusion',
-      source: 'buildings',
-      layout: { visibility: 'none' },
-      paint: {
-        'fill-extrusion-color': [
-          'match',
-          ['get', 'category'],
-          'admin',
-          '#BFE8D8',
-          'faculty',
-          '#C9D3F0',
-          'facility',
-          '#F7DDB0',
-          'food',
-          '#F8C9B8',
-          'event',
-          '#F3C6D8',
-          '#DDE6E2',
-        ],
-        'fill-extrusion-height': ['coalesce', ['get', 'estimatedHeightM'], 14],
-        'fill-extrusion-base': 0,
-        'fill-extrusion-opacity': 0.92,
-        'fill-extrusion-vertical-gradient': true,
-      },
+  layers.push({
+    id: 'buildings-3d',
+    type: 'fill-extrusion',
+    source: 'buildings',
+    layout: { visibility: 'none' },
+    paint: {
+      'fill-extrusion-color': [
+        'match',
+        ['get', 'category'],
+        'admin',
+        '#BFE8D8',
+        'faculty',
+        '#C9D3F0',
+        'facility',
+        '#F7DDB0',
+        'food',
+        '#F8C9B8',
+        'event',
+        '#F3C6D8',
+        '#DDE6E2',
+      ],
+      'fill-extrusion-height': ['coalesce', ['get', 'estimatedHeightM'], 14],
+      'fill-extrusion-base': 0,
+      'fill-extrusion-opacity': 0.92,
+      'fill-extrusion-vertical-gradient': true,
     },
+  });
+
+  // --- Illustrated 3D Decorative Layers (context pastels + roofs, UNTAR floor bands + roofs, 3D trees) ---
+  if (illustrated) {
+    layers.push(
+      {
+        id: 'ill-context-3d',
+        type: 'fill-extrusion',
+        source: 'ill-context-3d',
+        layout: { visibility: 'none' },
+        paint: {
+          'fill-extrusion-color': ['get', 'color'],
+          'fill-extrusion-height': ['get', 'height'],
+          'fill-extrusion-base': 0,
+          'fill-extrusion-opacity': 0.92,
+          'fill-extrusion-vertical-gradient': true,
+        },
+      },
+      {
+        id: 'ill-context-roofs',
+        type: 'fill-extrusion',
+        source: 'ill-context-roofs',
+        layout: { visibility: 'none' },
+        paint: {
+          'fill-extrusion-color': ['get', 'color'],
+          'fill-extrusion-base': ['get', 'base'],
+          'fill-extrusion-height': ['get', 'height'],
+          'fill-extrusion-opacity': 0.95,
+          'fill-extrusion-vertical-gradient': true,
+        },
+      },
+      {
+        id: 'ill-building-bands',
+        type: 'fill-extrusion',
+        source: 'ill-building-bands',
+        layout: { visibility: 'none' },
+        paint: {
+          'fill-extrusion-color': ['get', 'color'],
+          'fill-extrusion-base': ['get', 'base'],
+          'fill-extrusion-height': ['get', 'height'],
+          'fill-extrusion-opacity': 0.96,
+          'fill-extrusion-vertical-gradient': true,
+        },
+      },
+      {
+        id: 'ill-building-selected-wall',
+        type: 'fill-extrusion',
+        source: 'buildings',
+        layout: { visibility: 'none' },
+        filter: ['==', ['get', 'id'], ''],
+        paint: {
+          'fill-extrusion-color': '#8FE3C3',
+          'fill-extrusion-height': [
+            'coalesce',
+            ['get', 'estimatedHeightM'],
+            14,
+          ],
+          'fill-extrusion-base': 0,
+          'fill-extrusion-opacity': 0.94,
+          'fill-extrusion-vertical-gradient': true,
+        },
+      },
+      {
+        id: 'ill-building-selected-glow',
+        type: 'line',
+        source: 'buildings',
+        layout: { visibility: 'none' },
+        filter: ['==', ['get', 'id'], ''],
+        paint: {
+          'line-color': '#2ED39A',
+          'line-width': 3,
+          'line-opacity': 0.85,
+        },
+      },
+      {
+        id: 'ill-building-roofs',
+        type: 'fill-extrusion',
+        source: 'ill-building-roofs',
+        layout: { visibility: 'none' },
+        paint: {
+          'fill-extrusion-color': ['get', 'color'],
+          'fill-extrusion-base': ['get', 'base'],
+          'fill-extrusion-height': ['get', 'height'],
+          'fill-extrusion-opacity': 0.98,
+          'fill-extrusion-vertical-gradient': true,
+        },
+      },
+      {
+        id: 'ill-tree-trunks',
+        type: 'fill-extrusion',
+        source: 'ill-tree-trunks',
+        layout: { visibility: 'none' },
+        paint: {
+          'fill-extrusion-color': ['get', 'color'],
+          'fill-extrusion-base': ['get', 'base'],
+          'fill-extrusion-height': ['get', 'height'],
+          'fill-extrusion-opacity': 0.96,
+        },
+      },
+      {
+        id: 'ill-tree-canopies-3d',
+        type: 'fill-extrusion',
+        source: 'ill-tree-canopies',
+        layout: { visibility: 'none' },
+        paint: {
+          'fill-extrusion-color': ['get', 'color'],
+          'fill-extrusion-base': ['get', 'base'],
+          'fill-extrusion-height': ['get', 'height'],
+          'fill-extrusion-opacity': 0.95,
+          'fill-extrusion-vertical-gradient': true,
+        },
+      }
+    );
+  }
+
+  // --- Selected Floor Slab & Nav3D Destination Highlight ---
+  layers.push(
     {
       id: 'selected-floor-3d',
       type: 'fill-extrusion',
@@ -252,7 +527,63 @@ export function createPastelMapStyle({
         'fill-extrusion-vertical-gradient': true,
       },
     },
-    // --- Dotted Route Layers (ALWAYS above 3D extrusion layers) ---
+    {
+      id: 'nav-dest-building-3d',
+      type: 'fill-extrusion',
+      source: 'buildings',
+      layout: { visibility: 'none' },
+      filter: ['==', ['get', 'id'], ''],
+      paint: {
+        'fill-extrusion-color': '#8FE3C3',
+        'fill-extrusion-height': ['coalesce', ['get', 'estimatedHeightM'], 14],
+        'fill-extrusion-base': 0,
+        'fill-extrusion-opacity': 0.96,
+        'fill-extrusion-vertical-gradient': true,
+      },
+    },
+    {
+      id: 'nav-dest-edge-3d',
+      type: 'line',
+      source: 'buildings',
+      layout: { visibility: 'none' },
+      filter: ['==', ['get', 'id'], ''],
+      paint: {
+        'line-color': '#2ED39A',
+        'line-width': 2.5,
+      },
+    },
+    // --- Route Layers (ALWAYS above all decorative & extrusion layers) ---
+    {
+      id: 'route-done',
+      type: 'line',
+      source: 'route-done',
+      layout: {
+        visibility: 'none',
+        'line-cap': 'round',
+        'line-join': 'round',
+      },
+      paint: {
+        'line-color': '#BFE8D8',
+        'line-width': 6,
+      },
+    },
+    {
+      id: 'route-glow',
+      type: 'line',
+      source: 'route',
+      filter: ['!=', ['get', 'manual'], true],
+      layout: {
+        visibility: 'none',
+        'line-cap': 'round',
+        'line-join': 'round',
+      },
+      paint: {
+        'line-color': '#2ED39A',
+        'line-width': 18,
+        'line-opacity': 0.25,
+        'line-blur': 8,
+      },
+    },
     {
       id: 'route-casing',
       type: 'line',
@@ -264,6 +595,21 @@ export function createPastelMapStyle({
       paint: {
         'line-color': '#FFFFFF',
         'line-width': 9,
+      },
+    },
+    {
+      id: 'route-core',
+      type: 'line',
+      source: 'route',
+      filter: ['!=', ['get', 'manual'], true],
+      layout: {
+        visibility: 'none',
+        'line-cap': 'round',
+        'line-join': 'round',
+      },
+      paint: {
+        'line-color': '#2ED39A',
+        'line-width': 6,
       },
     },
     {

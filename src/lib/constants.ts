@@ -12,6 +12,18 @@ export const CAMPUS_GEOLOCATION_MARGIN_M = 150;
 /** Feature flag for 3D pastel isometric map view (defaults to true). */
 export const ENABLE_3D: boolean = import.meta.env.VITE_ENABLE_3D !== 'false';
 
+/** Feature flag for Navigation 3D follow camera (defaults to true; requires ENABLE_3D). */
+export const ENABLE_NAV3D: boolean =
+  ENABLE_3D && import.meta.env.VITE_ENABLE_NAV3D !== 'false';
+
+/** Feature flag for Illustrated decorative visual style (defaults to true). */
+export const ENABLE_ILLUSTRATED: boolean =
+  import.meta.env.VITE_ENABLE_ILLUSTRATED !== 'false';
+
+/** Dev-only tools flag (e.g., "Drift 40 m", "Flat / Illustrated" switch). */
+export const SHOW_DEV_TOOLS: boolean =
+  import.meta.env.VITE_SHOW_DEV_TOOLS === 'true' && !import.meta.env.PROD;
+
 /** Estimated meters per floor for 3D extrusion (visual estimate only). */
 export const FLOOR_HEIGHT_M = 3.5;
 

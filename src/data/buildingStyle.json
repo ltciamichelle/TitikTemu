@@ -1,0 +1,56 @@
+{
+  "b518483242": {
+    "name": "Gedung I",
+    "wall": "#E9E4DA",
+    "wallAlt": "#D6D1C8",
+    "roof": "#C9CED6",
+    "accent": "#FF8A3D",
+    "windowTint": "#A9C7D8",
+    "source": "default"
+  },
+  "b518483241": {
+    "name": "Gedung M",
+    "wall": "#DCE6F0",
+    "wallAlt": "#CAD4DD",
+    "roof": "#C9CED6",
+    "accent": "#FF8A3D",
+    "windowTint": "#A9C7D8",
+    "source": "default"
+  },
+  "b518483240": {
+    "name": "Gedung P",
+    "wall": "#F0E2D2",
+    "wallAlt": "#DDD0C1",
+    "roof": "#C9CED6",
+    "accent": "#FF8A3D",
+    "windowTint": "#A9C7D8",
+    "source": "default"
+  },
+  "b518483239": {
+    "name": "Gedung J dan L",
+    "wall": "#E3EBDD",
+    "wallAlt": "#D1D8CB",
+    "roof": "#C9CED6",
+    "accent": "#FF8A3D",
+    "windowTint": "#A9C7D8",
+    "source": "default"
+  },
+  "b518483236": {
+    "name": "Gedung K",
+    "wall": "#EADFE8",
+    "wallAlt": "#D7CDD5",
+    "roof": "#C9CED6",
+    "accent": "#FF8A3D",
+    "windowTint": "#A9C7D8",
+    "source": "default"
+  },
+  "b518483234": {
+    "name": "Gedung R",
+    "wall": "#DDE9E6",
+    "wallAlt": "#CBD6D3",
+    "roof": "#C9CED6",
+    "accent": "#FF8A3D",
+    "windowTint": "#A9C7D8",
+    "source": "default"
+  }
+}
