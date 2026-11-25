@@ -1,4 +1,4 @@
-import { Map, MapPin, Users } from 'lucide-react';
+import { LogOut, Map, Users } from 'lucide-react';
 import { ENABLE_ILLUSTRATED } from '../lib/constants';
 import { searchBuildings } from '../lib/geo';
 import { useAppStore } from '../store/useAppStore';
@@ -49,6 +49,8 @@ export function Sidebar({
   const hasArrived = useAppStore((s) => s.hasArrived);
   const startRoute = useAppStore((s) => s.startRoute);
   const endRoute = useAppStore((s) => s.endRoute);
+  const authUser = useAppStore((s) => s.authUser);
+  const signOutDemo = useAppStore((s) => s.signOutDemo);
 
   const selectedFriend = selectedFriendId
     ? friends.find((f) => f.user.id === selectedFriendId) ?? null
@@ -78,18 +80,38 @@ export function Sidebar({
           : 'pointer-events-auto absolute bottom-4 left-4 top-4 z-20 flex w-[340px] flex-col overflow-hidden rounded-card bg-white shadow-soft'
       }
     >
-      {/* Top Header: Logo / Wordmark + Pill Tab Switch */}
+      {/* Top Header: Logo / Wordmark + Sign out/Replay + Pill Tab Switch */}
       <div className="shrink-0 border-b border-[#EEF1F0] px-5 pb-4 pt-5">
-        <div className="flex items-center gap-2.5">
-          <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-mint text-[#156A4D]">
-            <MapPin size={20} strokeWidth={2} />
-          </span>
-          <div>
-            <h1 className="text-lg font-bold leading-tight text-ink">
-              TitikTemu
-            </h1>
-            <p className="text-xs font-medium text-muted">UNTAR Kampus 1</p>
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2.5">
+            <img
+              src="/logo.png"
+              alt="TitikTemu logo"
+              className="h-10 w-10 shrink-0 rounded-2xl object-contain"
+            />
+            <div>
+              <h1 className="text-lg font-bold leading-tight text-ink">
+                TitikTemu
+              </h1>
+              <p className="text-xs font-medium text-muted">
+                {authUser
+                  ? authUser.isVisitor
+                    ? 'UNTAR Kampus 1 • Visitor'
+                    : `Hi, ${authUser.displayName}`
+                  : 'UNTAR Kampus 1'}
+              </p>
+            </div>
           </div>
+
+          <button
+            type="button"
+            onClick={signOutDemo}
+            aria-label="Sign out and show onboarding"
+            title="Sign out / Replay onboarding"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-muted transition-colors hover:bg-[#F4F8F6] hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          >
+            <LogOut size={17} strokeWidth={1.8} />
+          </button>
         </div>
 
         {/* Mint pill switch tabs (Map, Friends) */}

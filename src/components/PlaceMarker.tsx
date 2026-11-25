@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Building2 } from 'lucide-react';
 import { formatPinInitials } from '../lib/geo';
 import type { Building } from '../types';
 
@@ -51,28 +52,28 @@ export function PlaceMarker({
           e.stopPropagation();
           onSelect(building.id);
         }}
-        className="group relative flex min-h-[44px] min-w-[44px] cursor-pointer items-center justify-center rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+        className="group relative flex min-h-[44px] min-w-[44px] cursor-pointer items-center justify-center rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
       >
-        {/* Selected soft orange halo ring (#FF8A3D at 25%) */}
+        {/* Selected soft mint/emerald architectural halo (distinct from round friend avatars) */}
         {isSelected && (
           <>
             <span
-              className="pointer-events-none absolute h-[76px] w-[76px] rounded-full"
-              style={{ backgroundColor: 'rgba(255, 138, 61, 0.14)' }}
+              className="pointer-events-none absolute h-[64px] w-[64px] rounded-[22px]"
+              style={{ backgroundColor: 'rgba(46, 211, 154, 0.16)' }}
             />
             <span
-              className="pointer-events-none absolute h-[62px] w-[62px] rounded-full"
-              style={{ backgroundColor: 'rgba(255, 138, 61, 0.25)' }}
+              className="pointer-events-none absolute h-[54px] w-[54px] rounded-[18px]"
+              style={{ backgroundColor: 'rgba(46, 211, 154, 0.28)' }}
             />
           </>
         )}
 
-        {/* Round badge: 44px on mobile, 40px on desktop (larger when selected) */}
+        {/* Rounded-square building badge (distinct from round FriendPin avatars) */}
         <span
-          className={`relative z-10 flex items-center justify-center overflow-hidden rounded-full border-[3px] border-white shadow-soft transition-all duration-200 ${
+          className={`relative z-10 flex items-center justify-center gap-1 overflow-hidden rounded-[14px] border-2 shadow-soft transition-all duration-200 ${
             isSelected
-              ? 'h-[50px] w-[50px] scale-105 bg-accent text-white'
-              : 'h-[44px] w-[44px] bg-mint text-ink group-hover:scale-110 group-hover:shadow-[0_10px_28px_rgba(30,42,58,0.16)] md:h-[40px] md:w-[40px]'
+              ? 'h-[44px] min-w-[46px] scale-105 border-primary bg-ink px-2 text-white'
+              : 'h-[40px] min-w-[42px] border-white bg-white px-2 text-ink group-hover:scale-105 group-hover:border-primary/60 group-hover:shadow-[0_10px_28px_rgba(30,42,58,0.16)] md:h-[38px] md:min-w-[40px]'
           }`}
         >
           {building.photo ? (
@@ -82,31 +83,40 @@ export function PlaceMarker({
               className="h-full w-full object-cover"
             />
           ) : (
-            <span
-              className={`font-bold leading-none ${
-                initials.length > 2 ? 'text-xs' : 'text-sm'
-              }`}
-            >
-              {initials}
-            </span>
+            <>
+              <Building2
+                size={14}
+                strokeWidth={2}
+                className={isSelected ? 'shrink-0 text-primary' : 'shrink-0 text-[#156A4D]'}
+              />
+              <span
+                className={`font-bold leading-none tracking-tight ${
+                  initials.length > 2 ? 'text-xs' : 'text-sm'
+                }`}
+              >
+                {initials}
+              </span>
+            </>
           )}
         </span>
 
-        {/* Small bottom pin tip */}
+        {/* Small bottom architectural pointer */}
         <span
-          className={`pointer-events-none absolute z-0 h-2.5 w-2.5 rotate-45 bg-white shadow-sm transition-all duration-200 ${
-            isSelected ? 'bottom-[-4px]' : 'bottom-[-1px] md:bottom-[1px]'
+          className={`pointer-events-none absolute z-0 h-2.5 w-2.5 rotate-45 shadow-sm transition-all duration-200 ${
+            isSelected
+              ? 'bottom-[-3px] bg-ink'
+              : 'bottom-[0px] bg-white md:bottom-[1px]'
           }`}
         />
       </button>
 
-      {/* Full building label: white-space nowrap, never clipped, shown at zoom >= 16.5 */}
+      {/* Architectural building tag (rectangular with border, distinct from friend speech bubbles) */}
       {displayLabel && (
         <span
-          className={`pointer-events-none mt-1 whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-semibold leading-tight transition-colors ${
+          className={`pointer-events-none mt-1.5 inline-flex items-center gap-1 whitespace-nowrap rounded-lg border px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide leading-tight transition-colors ${
             isSelected
-              ? 'bg-ink text-white shadow-soft-sm'
-              : 'bg-white/90 text-muted shadow-soft-sm backdrop-blur-[2px]'
+              ? 'border-primary/60 bg-ink text-white shadow-soft-sm'
+              : 'border-[#D5DFDA] bg-[#F4F8F6]/95 text-[#2C3E50] shadow-soft-sm backdrop-blur-[2px]'
           }`}
         >
           {building.name}

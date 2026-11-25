@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { authRepo, type DemoAuthUser } from '../lib/authRepo';
 import {
   DEMO_USER_POSITION,
   ENABLE_ILLUSTRATED,
@@ -31,6 +32,9 @@ export type SimSpeed = 1 | 3 | 6;
 export type VisualStyle = 'flat' | 'illustrated';
 
 interface AppState {
+  // Dummy Auth / Onboarding state (replace with Supabase Auth later)
+  authUser: DemoAuthUser | null;
+
   // Map / Building / Route state
   selectedBuildingId: string | null;
   selectedFloor: string;
@@ -57,6 +61,16 @@ interface AppState {
   shareConsentGiven: boolean;
   selectedFriendId: string | null;
   manualBuildingOverride: boolean;
+
+  // Dummy Auth actions
+  signUpDemo: (input: {
+    displayName: string;
+    username: string;
+    email: string;
+  }) => void;
+  logInDemo: (identifier: string) => void;
+  continueAsVisitor: () => void;
+  signOutDemo: () => void;
 
   // Map / Building / Route actions
   selectBuilding: (id: string | null, initialFloor?: string) => void;
@@ -110,6 +124,8 @@ const initialVisibleFriendIds = initialFriends
   .map((f) => f.user.id);
 
 export const useAppStore = create<AppState>((set, get) => ({
+  authUser: authRepo.getCurrentUser(),
+
   selectedBuildingId: null,
   selectedFloor: '1',
   searchQuery: '',
@@ -134,6 +150,23 @@ export const useAppStore = create<AppState>((set, get) => ({
   shareConsentGiven: loadShareConsent(),
   selectedFriendId: null,
   manualBuildingOverride: false,
+
+  signUpDemo: (input) => {
+    const user = authRepo.signUp(input);
+    set({ authUser: user });
+  },
+  logInDemo: (identifier) => {
+    const user = authRepo.logIn(identifier);
+    set({ authUser: user });
+  },
+  continueAsVisitor: () => {
+    const user = authRepo.continueAsVisitor();
+    set({ authUser: user });
+  },
+  signOutDemo: () => {
+    authRepo.signOut();
+    set({ authUser: null });
+  },
 
   selectBuilding: (id, initialFloor = '1') => {
     const prevCam = get().cameraMode;

@@ -393,10 +393,42 @@ export function createPastelMapStyle({
       ],
       'fill-extrusion-height': ['coalesce', ['get', 'estimatedHeightM'], 14],
       'fill-extrusion-base': 0,
-      'fill-extrusion-opacity': 0.92,
+      'fill-extrusion-opacity': 1,
       'fill-extrusion-vertical-gradient': true,
     },
   });
+
+  // Flat 3D non-overlapping lower/upper segments around the selected floor slab
+  layers.push(
+    {
+      id: 'buildings-3d-below',
+      type: 'fill-extrusion',
+      source: 'buildings',
+      layout: { visibility: 'none' },
+      filter: ['==', ['get', 'id'], ''],
+      paint: {
+        'fill-extrusion-color': '#8FE3C3',
+        'fill-extrusion-base': 0,
+        'fill-extrusion-height': 0,
+        'fill-extrusion-opacity': 1,
+        'fill-extrusion-vertical-gradient': true,
+      },
+    },
+    {
+      id: 'buildings-3d-above',
+      type: 'fill-extrusion',
+      source: 'buildings',
+      layout: { visibility: 'none' },
+      filter: ['==', ['get', 'id'], ''],
+      paint: {
+        'fill-extrusion-color': '#8FE3C3',
+        'fill-extrusion-base': FLOOR_HEIGHT_M,
+        'fill-extrusion-height': ['coalesce', ['get', 'estimatedHeightM'], 14],
+        'fill-extrusion-opacity': 1,
+        'fill-extrusion-vertical-gradient': true,
+      },
+    }
+  );
 
   // --- Illustrated 3D Decorative Layers (context pastels + roofs, UNTAR floor bands + roofs, 3D trees) ---
   if (illustrated) {
@@ -410,7 +442,7 @@ export function createPastelMapStyle({
           'fill-extrusion-color': ['get', 'color'],
           'fill-extrusion-height': ['get', 'height'],
           'fill-extrusion-base': 0,
-          'fill-extrusion-opacity': 0.92,
+          'fill-extrusion-opacity': 1,
           'fill-extrusion-vertical-gradient': true,
         },
       },
@@ -423,7 +455,7 @@ export function createPastelMapStyle({
           'fill-extrusion-color': ['get', 'color'],
           'fill-extrusion-base': ['get', 'base'],
           'fill-extrusion-height': ['get', 'height'],
-          'fill-extrusion-opacity': 0.95,
+          'fill-extrusion-opacity': 1,
           'fill-extrusion-vertical-gradient': true,
         },
       },
@@ -436,25 +468,7 @@ export function createPastelMapStyle({
           'fill-extrusion-color': ['get', 'color'],
           'fill-extrusion-base': ['get', 'base'],
           'fill-extrusion-height': ['get', 'height'],
-          'fill-extrusion-opacity': 0.96,
-          'fill-extrusion-vertical-gradient': true,
-        },
-      },
-      {
-        id: 'ill-building-selected-wall',
-        type: 'fill-extrusion',
-        source: 'buildings',
-        layout: { visibility: 'none' },
-        filter: ['==', ['get', 'id'], ''],
-        paint: {
-          'fill-extrusion-color': '#8FE3C3',
-          'fill-extrusion-height': [
-            'coalesce',
-            ['get', 'estimatedHeightM'],
-            14,
-          ],
-          'fill-extrusion-base': 0,
-          'fill-extrusion-opacity': 0.94,
+          'fill-extrusion-opacity': 1,
           'fill-extrusion-vertical-gradient': true,
         },
       },
@@ -465,9 +479,9 @@ export function createPastelMapStyle({
         layout: { visibility: 'none' },
         filter: ['==', ['get', 'id'], ''],
         paint: {
-          'line-color': '#2ED39A',
+          'line-color': '#EF4444',
           'line-width': 3,
-          'line-opacity': 0.85,
+          'line-opacity': 0.9,
         },
       },
       {
@@ -479,7 +493,7 @@ export function createPastelMapStyle({
           'fill-extrusion-color': ['get', 'color'],
           'fill-extrusion-base': ['get', 'base'],
           'fill-extrusion-height': ['get', 'height'],
-          'fill-extrusion-opacity': 0.98,
+          'fill-extrusion-opacity': 1,
           'fill-extrusion-vertical-gradient': true,
         },
       },
@@ -492,7 +506,7 @@ export function createPastelMapStyle({
           'fill-extrusion-color': ['get', 'color'],
           'fill-extrusion-base': ['get', 'base'],
           'fill-extrusion-height': ['get', 'height'],
-          'fill-extrusion-opacity': 0.96,
+          'fill-extrusion-opacity': 1,
         },
       },
       {
@@ -504,14 +518,14 @@ export function createPastelMapStyle({
           'fill-extrusion-color': ['get', 'color'],
           'fill-extrusion-base': ['get', 'base'],
           'fill-extrusion-height': ['get', 'height'],
-          'fill-extrusion-opacity': 0.95,
+          'fill-extrusion-opacity': 1,
           'fill-extrusion-vertical-gradient': true,
         },
       }
     );
   }
 
-  // --- Selected Floor Slab & Nav3D Destination Highlight ---
+  // --- Selected Floor Slab (Red indicator) & Nav3D Destination Highlight ---
   layers.push(
     {
       id: 'selected-floor-3d',
@@ -520,7 +534,7 @@ export function createPastelMapStyle({
       layout: { visibility: 'none' },
       filter: ['==', ['get', 'id'], ''],
       paint: {
-        'fill-extrusion-color': '#2ED39A',
+        'fill-extrusion-color': '#EF4444',
         'fill-extrusion-base': 0,
         'fill-extrusion-height': FLOOR_HEIGHT_M,
         'fill-extrusion-opacity': 1,
@@ -537,7 +551,7 @@ export function createPastelMapStyle({
         'fill-extrusion-color': '#8FE3C3',
         'fill-extrusion-height': ['coalesce', ['get', 'estimatedHeightM'], 14],
         'fill-extrusion-base': 0,
-        'fill-extrusion-opacity': 0.96,
+        'fill-extrusion-opacity': 1,
         'fill-extrusion-vertical-gradient': true,
       },
     },

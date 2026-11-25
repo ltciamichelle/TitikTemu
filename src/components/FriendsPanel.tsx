@@ -2,6 +2,7 @@ import { useState } from 'react';
 import {
   Building2,
   EyeOff,
+  LogOut,
   Radio,
   Sparkles,
   Trash2,
@@ -86,6 +87,7 @@ export function FriendsPanel({
   const setMyBuilding = useAppStore((s) => s.setMyBuilding);
   const toggleFriendVisibility = useAppStore((s) => s.toggleFriendVisibility);
   const clearMySocialData = useAppStore((s) => s.clearMySocialData);
+  const signOutDemo = useAppStore((s) => s.signOutDemo);
 
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [showAddFriend, setShowAddFriend] = useState(false);
@@ -372,6 +374,18 @@ export function FriendsPanel({
         <Trash2 size={15} strokeWidth={1.8} />
         <span>Stop sharing and clear my data</span>
       </button>
+
+      {/* Mobile sign out / replay onboarding */}
+      {variant === 'mobile' && (
+        <button
+          type="button"
+          onClick={signOutDemo}
+          className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-button bg-white px-4 py-2.5 text-xs font-bold text-muted shadow-soft-sm transition-colors hover:text-ink"
+        >
+          <LogOut size={15} strokeWidth={1.8} />
+          <span>Sign out / Replay onboarding</span>
+        </button>
+      )}
 
       {/* Modals */}
       <PrivacyConsentModal

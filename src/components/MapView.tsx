@@ -632,8 +632,8 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
         if (isNav3DRef.current) return;
         const queryLayers = is3DRef.current
           ? isIllustratedRef.current
-            ? ['ill-building-bands', 'ill-building-selected-wall', 'buildings-3d']
-            : ['buildings-3d']
+            ? ['ill-building-bands', 'selected-floor-3d', 'buildings-3d']
+            : ['buildings-3d', 'buildings-3d-below', 'buildings-3d-above', 'selected-floor-3d']
           : ['buildings-fill'];
         const existingLayers = queryLayers.filter((id) => map.getLayer(id));
         const features = map.queryRenderedFeatures(e.point, {
@@ -761,18 +761,10 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
       // Selected floor slab in Overview 3D
       setVis('selected-floor-3d', is3D && !isNav3D);
 
-      // Selected building highlight in Illustrated 3D
+      // Selected building base glow in Illustrated 3D (no overlapping wall extrusion!)
       const showIllSelected =
         isIllustrated && is3D && !isNav3D && Boolean(selectedBuildingId);
-      setVis('ill-building-selected-wall', showIllSelected);
       setVis('ill-building-selected-glow', showIllSelected);
-      if (map.getLayer('ill-building-selected-wall')) {
-        map.setFilter('ill-building-selected-wall', [
-          '==',
-          ['get', 'id'],
-          showIllSelected ? selectedBuildingId ?? '' : '',
-        ]);
-      }
       if (map.getLayer('ill-building-selected-glow')) {
         map.setFilter('ill-building-selected-glow', [
           '==',
@@ -780,6 +772,12 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
           showIllSelected ? selectedBuildingId ?? '' : '',
         ]);
       }
+
+      // Flat 3D split below/above layers for non-overlapping selected floor
+      const showFlatSelectedSplit =
+        !isIllustrated && is3D && !isNav3D && Boolean(selectedBuildingId);
+      setVis('buildings-3d-below', showFlatSelectedSplit);
+      setVis('buildings-3d-above', showFlatSelectedSplit);
 
       // Navigation 3D solid glowing route vs 2D/Overview dotted route
       for (const layerId of LAYERS_NAV3D_ROUTE) {
@@ -873,7 +871,7 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
       buildingsById,
     ]);
 
-    // Sync selected building highlight (2D) + selected floor slab (3D)
+    // Sync selected building highlight (2D) + non-overlapping red floor slab (3D)
     useEffect(() => {
       const map = mapRef.current;
       if (!map || !mapReady) return;
@@ -889,6 +887,81 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
         filterValue,
       ]);
 
+      const isBasement = /^b/i.test(selectedFloor);
+      const floorNum = isBasement
+        ? 1
+        : Math.max(1, Number.parseInt(selectedFloor, 10) || 1);
+      const baseM = isBasement ? 0 : (floorNum - 1) * FLOOR_HEIGHT_M;
+      const heightM = isBasement ? 1.8 : floorNum * FLOOR_HEIGHT_M;
+
+      // Prevent ANY coplanar z-fighting between ill-building-bands and selected-floor-3d / nav-dest-building-3d
+      if (map.getLayer('ill-building-bands')) {
+        if (isNav3D && selectedBuildingId) {
+          // Exclude destination building completely so nav-dest-building-3d draws cleanly
+          map.setFilter('ill-building-bands', [
+            '!=',
+            ['get', 'id'],
+            selectedBuildingId,
+          ]);
+        } else if (is3D && isIllustrated && selectedBuildingId) {
+          // Cut out ONLY the selected floor from the selected building so red selected-floor-3d sits cleanly in that slot
+          map.setFilter('ill-building-bands', [
+            'any',
+            ['!=', ['get', 'id'], selectedBuildingId],
+            ['!=', ['get', 'floor'], floorNum],
+          ]);
+        } else {
+          map.setFilter('ill-building-bands', null);
+        }
+      }
+
+      // Prevent coplanar z-fighting in Flat 3D as well
+      if (map.getLayer('buildings-3d')) {
+        if (is3D && !isIllustrated && selectedBuildingId) {
+          map.setFilter('buildings-3d', [
+            '!=',
+            ['get', 'id'],
+            selectedBuildingId,
+          ]);
+        } else {
+          map.setFilter('buildings-3d', null);
+        }
+      }
+
+      if (map.getLayer('buildings-3d-below')) {
+        map.setFilter('buildings-3d-below', [
+          '==',
+          ['get', 'id'],
+          is3D && !isIllustrated && !isNav3D && selectedBuildingId && baseM > 0
+            ? selectedBuildingId
+            : '',
+        ]);
+        map.setPaintProperty('buildings-3d-below', 'fill-extrusion-height', baseM);
+      }
+
+      if (map.getLayer('buildings-3d-above')) {
+        const b = selectedBuildingId
+          ? buildingsById.get(selectedBuildingId)
+          : null;
+        const totalH = b ? getEstimatedBuildingHeightM(b) : heightM;
+        map.setFilter('buildings-3d-above', [
+          '==',
+          ['get', 'id'],
+          is3D &&
+          !isIllustrated &&
+          !isNav3D &&
+          selectedBuildingId &&
+          totalH > heightM
+            ? selectedBuildingId
+            : '',
+        ]);
+        map.setPaintProperty(
+          'buildings-3d-above',
+          'fill-extrusion-base',
+          heightM
+        );
+      }
+
       if (map.getLayer('selected-floor-3d')) {
         map.setFilter('selected-floor-3d', [
           '==',
@@ -897,12 +970,6 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
         ]);
 
         if (selectedBuildingId) {
-          const isBasement = /^b/i.test(selectedFloor);
-          const floorNum = isBasement
-            ? 1
-            : Math.max(1, Number.parseInt(selectedFloor, 10) || 1);
-          const baseM = isBasement ? 0 : (floorNum - 1) * FLOOR_HEIGHT_M;
-          const heightM = isBasement ? 1.8 : floorNum * FLOOR_HEIGHT_M;
           map.setPaintProperty(
             'selected-floor-3d',
             'fill-extrusion-base',
@@ -922,7 +989,9 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
       selectedFloor,
       is3D,
       isNav3D,
+      isIllustrated,
       mapReady,
+      buildingsById,
       recomputeLabelOverlaps,
     ]);
 
