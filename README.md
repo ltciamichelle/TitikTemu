@@ -70,6 +70,12 @@ All feature flags default to enabled unless explicitly set to `false`:
 | `VITE_ENABLE_ILLUSTRATED` | `true` | Enables decorative illustrated map layers (shadows, bands, roofs, trees). |
 | `VITE_SHOW_DEV_TOOLS` | `false` | Dev-only controls: `"Flat / Illustrated"` switch and `"Drift 40 m"` off-route test button. |
 | `VITE_SHOW_DATA_NOTES` | `false` | Dev-only floor source verification note on Building Cards. |
+| `VITE_ENABLE_ADMIN` | `false` | Enables local-only Admin Lite (`#/admin`). **Keep `false` in all public deployments.** |
+
+### Admin Lite (Local Only)
+When running locally with `VITE_ENABLE_ADMIN=true` (e.g. in `.env.local`), open `http://localhost:5173/#/admin` to edit `buildingInfo.json`, run validation & graph checks, preview the public building card live, and export JSON or a Markdown validation report.
+
+> **Security Note:** Admin Lite has **no authentication and no backend** — it is **not secure** and must never be enabled on public deployments (`VITE_ENABLE_ADMIN` defaults to `false` so Vite excludes all admin code from public production builds). Real authentication and database persistence will come with Supabase in a later stage.
 
 ---
 

@@ -328,34 +328,6 @@ export function OnboardingFlow() {
             </p>
           </div>
         </div>
-
-        {/* Bottom slide pills + privacy note */}
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            {SLIDES.map((s, idx) => {
-              const selected = s.id === activeSlide;
-              return (
-                <button
-                  key={s.id}
-                  type="button"
-                  onClick={() => goToSlide(s.id)}
-                  className={`min-h-[40px] rounded-full px-3.5 text-xs font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
-                    selected
-                      ? 'bg-ink text-white shadow-soft-sm'
-                      : 'bg-white/75 text-ink hover:bg-white'
-                  }`}
-                >
-                  {idx + 1}. {s.shortLabel}
-                </button>
-              );
-            })}
-          </div>
-
-          <p className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#2E4657]">
-            <Lock size={14} strokeWidth={2} className="text-[#156A4D]" />
-            <span>Building-level privacy • Sharing off by default</span>
-          </p>
-        </div>
       </aside>
 
       {/* ================= RIGHT / MOBILE MAIN INTERACTION COLUMN ================= */}

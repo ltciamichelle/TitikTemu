@@ -24,6 +24,12 @@ export const ENABLE_ILLUSTRATED: boolean =
 export const SHOW_DEV_TOOLS: boolean =
   import.meta.env.VITE_SHOW_DEV_TOOLS === 'true' && !import.meta.env.PROD;
 
+/**
+ * Local-only Admin Lite feature flag (default FALSE).
+ * Public deployments MUST keep this false; real authentication comes with Supabase later.
+ */
+export const ENABLE_ADMIN: boolean = import.meta.env.VITE_ENABLE_ADMIN === 'true';
+
 /** Estimated meters per floor for 3D extrusion (visual estimate only). */
 export const FLOOR_HEIGHT_M = 3.5;
 
