@@ -7,6 +7,7 @@ import { ArrivalCard } from './ArrivalCard';
 import { BuildingCard } from './BuildingCard';
 import { FriendCard } from './FriendCard';
 import { FriendsPanel } from './FriendsPanel';
+import { PlaceCardsCarousel } from './PlaceCardsCarousel';
 import { RoutePanel } from './RoutePanel';
 import { SearchBar } from './SearchBar';
 import { SearchResults } from './SearchResults';
@@ -210,12 +211,21 @@ export function Sidebar({
               variant="sidebar"
             />
           ) : (
-            <SearchResults
-              results={allBuildingItems}
-              selectedBuildingId={selectedBuildingId}
-              onSelect={handlePick}
-              heading={`Campus buildings (${buildings.length})`}
-            />
+            <div>
+              <PlaceCardsCarousel
+                buildings={buildings}
+                onSelectPlace={(buildingId, floor) =>
+                  onSelectBuilding(buildingId, floor)
+                }
+                variant="sidebar"
+              />
+              <SearchResults
+                results={allBuildingItems}
+                selectedBuildingId={selectedBuildingId}
+                onSelect={handlePick}
+                heading={`Campus buildings (${buildings.length})`}
+              />
+            </div>
           )
         ) : (
           <FriendsPanel

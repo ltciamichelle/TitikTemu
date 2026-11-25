@@ -22,6 +22,7 @@ import { FriendsPanel } from './FriendsPanel';
 import { MapControls } from './MapControls';
 import { campusBuildings, MapView, type MapViewHandle } from './MapView';
 import { NavBanner } from './NavBanner';
+import { PlaceCardsCarousel } from './PlaceCardsCarousel';
 import { RoutePanel } from './RoutePanel';
 import { SearchBar } from './SearchBar';
 import { Sidebar } from './Sidebar';
@@ -298,7 +299,7 @@ export function Layout() {
                 ? isNav3D
                   ? 'bottom-[292px]'
                   : 'bottom-[256px]'
-                : 'bottom-[96px]'
+                : 'bottom-[292px]'
               : 'bottom-4'
           }`}
         >
@@ -382,6 +383,20 @@ export function Layout() {
           </div>
         </div>
       )}
+
+      {/* Mobile (<768px): Horizontal Campus Spots Carousel when nothing is selected */}
+      {isMobile &&
+        activeTab === 'map' &&
+        !selectedFriend &&
+        !selectedBuilding && (
+          <div className="pointer-events-none absolute inset-x-0 bottom-[82px] z-20">
+            <PlaceCardsCarousel
+              buildings={campusBuildings}
+              onSelectPlace={handleSelectBuilding}
+              variant="mobile"
+            />
+          </div>
+        )}
 
       {/* Mobile (<768px): Bottom Sheet for arrival, friend, building, or active route */}
       {isMobile &&

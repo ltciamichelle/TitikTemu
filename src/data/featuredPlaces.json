@@ -1,0 +1,101 @@
+[
+  {
+    "id": "spot-tkc",
+    "name": "Tarumanagara Knowledge Centre (TKC)",
+    "buildingId": "b518483242",
+    "floor": "6",
+    "tags": ["#tkc", "#perpustakaan", "#studi"],
+    "icon": "library",
+    "accentBg": "#E5F5EC",
+    "photo": "/places/tkc.jpg",
+    "verified": false
+  },
+  {
+    "id": "spot-admisi",
+    "name": "Kantor Admisi / Pusat Layanan Informasi",
+    "buildingId": "b518483242",
+    "floor": "2",
+    "tags": ["#administrasi", "#layanan"],
+    "icon": "admin",
+    "accentBg": "#E6F4EE",
+    "photo": null,
+    "verified": false
+  },
+  {
+    "id": "spot-perpus-univ",
+    "name": "Perpustakaan Universitas & FH",
+    "buildingId": "b518483241",
+    "floor": "5",
+    "tags": ["#perpustakaan", "#studi"],
+    "icon": "library",
+    "accentBg": "#E5ECF9",
+    "photo": null,
+    "verified": false
+  },
+  {
+    "id": "spot-foodcourt",
+    "name": "Food Court",
+    "buildingId": "b518483240",
+    "floor": "1",
+    "tags": ["#kantin", "#makan"],
+    "icon": "food",
+    "accentBg": "#FDF1DF",
+    "photo": null,
+    "verified": false
+  },
+  {
+    "id": "spot-bca",
+    "name": "BCA & Layanan Bank",
+    "buildingId": "b518483242",
+    "floor": "2",
+    "tags": ["#bank", "#atm"],
+    "icon": "bank",
+    "accentBg": "#E6F4F1",
+    "photo": null,
+    "verified": false
+  },
+  {
+    "id": "spot-auditorium",
+    "name": "Ruang Auditorium",
+    "buildingId": "b518483242",
+    "floor": "3",
+    "tags": ["#auditorium", "#event"],
+    "icon": "event",
+    "accentBg": "#F5E6F0",
+    "photo": null,
+    "verified": false
+  },
+  {
+    "id": "spot-perpus-ft",
+    "name": "Perpustakaan FT, FTI & FSRD",
+    "buildingId": "b518483236",
+    "floor": "8",
+    "tags": ["#perpustakaan", "#fakultas"],
+    "icon": "library",
+    "accentBg": "#EAE5F7",
+    "photo": null,
+    "verified": false
+  },
+  {
+    "id": "spot-poliklinik",
+    "name": "Kantor Pos, Poliklinik & Koperasi (D)",
+    "buildingId": "b518483239",
+    "floor": "1",
+    "tags": ["#poliklinik", "#koperasi"],
+    "icon": "health",
+    "accentBg": "#FBEAE5",
+    "photo": null,
+    "verified": false
+  },
+  {
+    "id": "spot-olahraga",
+    "name": "Lapangan Basket / Voli / Bulutangkis",
+    "buildingId": "b518483240",
+    "floor": "8",
+    "tags": ["#olahraga", "#fasilitas"],
+    "icon": "sport",
+    "accentBg": "#E6F5EA",
+    "photo": null,
+    "verified": false
+  }
+]
