@@ -68,7 +68,7 @@ function SplashVisual({
             <img
               src="/logo.png"
               alt="TitikTemu"
-              className="h-9 w-9 rounded-xl bg-white/90 p-1 object-contain shadow-soft-sm"
+              className="h-9 w-9 object-contain"
             />
             <span className="rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-bold text-[#156A4D]">
               6 Buildings
@@ -299,13 +299,11 @@ export function OnboardingFlow() {
         {/* Top brand bar */}
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white p-1.5 shadow-soft-sm">
-              <img
-                src="/logo.png"
-                alt="TitikTemu logo"
-                className="h-full w-full object-contain"
-              />
-            </div>
+            <img
+              src="/logo.png"
+              alt="TitikTemu mascot"
+              className="h-12 w-12 shrink-0 object-contain"
+            />
             <div>
               <p className="text-xl font-bold leading-tight text-ink">
                 TitikTemu
@@ -315,10 +313,6 @@ export function OnboardingFlow() {
               </p>
             </div>
           </div>
-
-          <span className="rounded-full bg-white/85 px-3 py-1 text-xs font-bold text-[#156A4D] shadow-soft-sm">
-            Dummy auth preview
-          </span>
         </div>
 
         {/* Center interactive illustration + caption */}
@@ -388,9 +382,7 @@ export function OnboardingFlow() {
                   <span className="hidden lg:inline">Back</span>
                 </button>
               ) : (
-                <span className="rounded-full bg-mint/70 px-2.5 py-1 text-[11px] font-bold text-[#156A4D] lg:hidden">
-                  Demo preview
-                </span>
+                <span />
               )}
 
               <button
@@ -489,24 +481,17 @@ export function OnboardingFlow() {
                 >
                   <ArrowLeft size={19} strokeWidth={2} />
                 </button>
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white p-1.5 shadow-soft-sm">
-                  <img
-                    src="/logo.png"
-                    alt="TitikTemu logo"
-                    className="h-full w-full object-contain"
-                  />
-                </div>
+                <img
+                  src="/logo.png"
+                  alt="TitikTemu mascot"
+                  className="h-11 w-11 object-contain"
+                />
               </div>
 
               <div className="mt-4">
-                <div className="flex items-center gap-2">
-                  <h1 className="text-2xl font-bold text-ink">
-                    Create account
-                  </h1>
-                  <span className="rounded-full bg-white/80 px-2.5 py-0.5 text-[11px] font-bold text-[#156A4D]">
-                    Dummy auth
-                  </span>
-                </div>
+                <h1 className="text-2xl font-bold text-ink">
+                  Create account
+                </h1>
                 <p className="mt-0.5 text-xs font-medium text-[#2E4657]">
                   Navigate UNTAR Kampus 1 &amp; find friends
                 </p>
@@ -652,22 +637,15 @@ export function OnboardingFlow() {
                 >
                   <ArrowLeft size={19} strokeWidth={2} />
                 </button>
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white p-1.5 shadow-soft-sm">
-                  <img
-                    src="/logo.png"
-                    alt="TitikTemu logo"
-                    className="h-full w-full object-contain"
-                  />
-                </div>
+                <img
+                  src="/logo.png"
+                  alt="TitikTemu mascot"
+                  className="h-11 w-11 object-contain"
+                />
               </div>
 
               <div className="mt-4">
-                <div className="flex items-center gap-2">
-                  <h1 className="text-2xl font-bold text-ink">Welcome back</h1>
-                  <span className="rounded-full bg-white/80 px-2.5 py-0.5 text-[11px] font-bold text-[#156A4D]">
-                    Dummy auth
-                  </span>
-                </div>
+                <h1 className="text-2xl font-bold text-ink">Welcome back</h1>
                 <p className="mt-0.5 text-xs font-medium text-[#2E4657]">
                   Log in to explore campus &amp; see friends
                 </p>

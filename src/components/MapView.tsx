@@ -81,7 +81,11 @@ import {
   splitRouteGeoJSON,
   type Maneuver,
 } from '../lib/navigation';
-import { isInsideCampusArea, routeToGeoJSON } from '../lib/routing';
+import {
+  isInsideCampusArea,
+  routeFromUser,
+  routeToGeoJSON,
+} from '../lib/routing';
 import { useAppStore } from '../store/useAppStore';
 import type {
   Building,
@@ -346,6 +350,15 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
     const preparedRoute = useMemo(
       () => (route ? prepareRoute(route.coords) : null),
       [route]
+    );
+
+    // Preview dotted walking route as soon as a building is selected (before pressing "Start route")
+    const previewRoute = useMemo(
+      () =>
+        !route && selectedBuildingId
+          ? routeFromUser(userPosition, selectedBuildingId)
+          : null,
+      [route, selectedBuildingId, userPosition]
     );
 
     const campusBounds = useMemo(
@@ -1117,7 +1130,7 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
       };
     }, [friends, visibleFriendIds, mapReady, buildingsById, isNav3D]);
 
-    // Sync route GeoJSON in 2D / Overview 3D (and clear when route ends)
+    // Sync route (or selected-building preview route) GeoJSON in 2D / Overview 3D
     useEffect(() => {
       const map = mapRef.current;
       if (!map || !mapReady) return;
@@ -1132,7 +1145,9 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
         | maplibregl.GeoJSONSource
         | undefined;
 
-      if (!route) {
+      const displayedRoute = route ?? previewRoute;
+
+      if (!displayedRoute) {
         routeSource?.setData({ type: 'FeatureCollection', features: [] });
         doneSource?.setData({ type: 'FeatureCollection', features: [] });
         entranceSource?.setData({ type: 'FeatureCollection', features: [] });
@@ -1141,7 +1156,7 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
         return;
       }
 
-      if (route.destinationEntrance) {
+      if (displayedRoute.destinationEntrance) {
         entranceSource?.setData({
           type: 'FeatureCollection',
           features: [
@@ -1150,7 +1165,7 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
               properties: {},
               geometry: {
                 type: 'Point',
-                coordinates: route.destinationEntrance,
+                coordinates: displayedRoute.destinationEntrance,
               },
             },
           ],
@@ -1158,9 +1173,9 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
       }
 
       if (!isNav3D) {
-        routeSource?.setData(routeToGeoJSON(route));
+        routeSource?.setData(routeToGeoJSON(displayedRoute));
         doneSource?.setData({ type: 'FeatureCollection', features: [] });
-        if (route.coords.length >= 2) {
+        if (route && route.coords.length >= 2) {
           const padding = getMapPadding(breakpointRef.current, true);
           map.fitBounds(computeCoordsBounds(route.coords), {
             padding,
@@ -1170,7 +1185,7 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
           });
         }
       }
-    }, [route, isNav3D, mapReady]);
+    }, [route, previewRoute, isNav3D, mapReady]);
 
     // Navigation 3D 30fps requestAnimationFrame follow camera & simulated walk loop
     useEffect(() => {

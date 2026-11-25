@@ -128,13 +128,8 @@ export function PlaceCardsCarousel({
                 {place.name}
               </p>
 
-              {/* Teal hashtags (matching reference) */}
-              <p className="mt-0.5 truncate text-xs font-semibold text-[#156A4D]">
-                {place.tags.join(' ')}
-              </p>
-
-              {/* Location subtitle (2 lines muted, matching reference) */}
-              <p className="mt-1.5 line-clamp-2 text-[11px] font-medium leading-snug text-muted">
+              {/* Location subtitle */}
+              <p className="mt-1 line-clamp-2 text-[11px] font-medium leading-snug text-muted">
                 {buildingName}, Lantai {place.floor} • UNTAR Kampus 1
               </p>
             </button>
