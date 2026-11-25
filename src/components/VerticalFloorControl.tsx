@@ -32,7 +32,7 @@ export function VerticalFloorControl({ building }: VerticalFloorControlProps) {
       role="tablist"
       aria-label={`Floors in ${building.name}`}
       aria-orientation="vertical"
-      className="no-scrollbar pointer-events-auto flex max-h-[240px] flex-col items-center gap-1 overflow-y-auto rounded-full bg-white/95 p-1 shadow-soft backdrop-blur-[2px]"
+      className="no-scrollbar pointer-events-auto flex max-h-[176px] flex-col items-center gap-1 overflow-y-auto overscroll-contain rounded-full bg-white/95 p-1 shadow-soft backdrop-blur-[2px] md:max-h-[240px]"
     >
       {orderedFloors.map((floorKey) => {
         const isActive = selectedFloor === floorKey;

@@ -91,7 +91,7 @@ export function SearchBar({
       </div>
 
       {showDropdown && (
-        <div className="mt-2 max-h-[300px] overflow-y-auto rounded-card bg-white p-2 shadow-soft">
+        <div className="mt-2 max-h-[45dvh] overflow-y-auto overscroll-contain rounded-card bg-white p-2 shadow-soft">
           <SearchResults
             results={results}
             selectedBuildingId={selectedBuildingId}

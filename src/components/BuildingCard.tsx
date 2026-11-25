@@ -115,7 +115,7 @@ export function BuildingCard({
       }
       className={
         isSheet
-          ? 'pointer-events-auto mx-4 mb-3 flex max-h-[68dvh] flex-col overflow-hidden rounded-card bg-white shadow-soft transition-transform duration-150'
+          ? 'pointer-events-auto mx-3 mb-2 flex max-h-[62dvh] flex-col overflow-hidden rounded-card bg-white shadow-soft transition-transform duration-150 sm:mx-4 sm:mb-3'
           : 'flex flex-col rounded-card bg-[#F7FAF9] p-4 shadow-soft-sm'
       }
     >

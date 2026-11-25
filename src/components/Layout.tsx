@@ -290,21 +290,32 @@ export function Layout() {
         </div>
       )}
 
+      {/* Mobile (<768px): Left-side floating vertical floor picker in Overview 3D (keeps right side clear for MapControls) */}
+      {isMobile &&
+        activeTab === 'map' &&
+        isOverview3D &&
+        selectedBuilding &&
+        routeStatus === 'idle' && (
+          <div className="pointer-events-none absolute left-3 top-[132px] z-10">
+            <VerticalFloorControl building={selectedBuilding} />
+          </div>
+        )}
+
       {/* Right-side MapControls, 3D floor picker / Top view / Re-center, 2D/3D toggle, Attribution */}
       {(!isMobile || activeTab === 'map') && (
         <div
-          className={`pointer-events-none absolute right-4 z-10 flex flex-col items-end gap-2.5 transition-all duration-200 ${
+          className={`pointer-events-none absolute right-3 z-10 flex flex-col items-end gap-2 transition-all duration-200 md:right-4 md:gap-2.5 ${
             isMobile
               ? selectedBuilding || selectedFriend
                 ? isNav3D
-                  ? 'bottom-[292px]'
-                  : 'bottom-[256px]'
-                : 'bottom-[292px]'
+                  ? 'bottom-[310px]'
+                  : 'bottom-[240px]'
+                : 'bottom-[252px]'
               : 'bottom-4'
           }`}
         >
-          {/* Floating vertical floor control in Overview 3D */}
-          {isOverview3D && selectedBuilding && routeStatus === 'idle' && (
+          {/* Floating vertical floor control on Desktop/Tablet in Overview 3D */}
+          {!isMobile && isOverview3D && selectedBuilding && routeStatus === 'idle' && (
             <VerticalFloorControl building={selectedBuilding} />
           )}
 
@@ -389,7 +400,10 @@ export function Layout() {
         activeTab === 'map' &&
         !selectedFriend &&
         !selectedBuilding && (
-          <div className="pointer-events-none absolute inset-x-0 bottom-[82px] z-20">
+          <div
+            className="pointer-events-none absolute inset-x-0 z-20"
+            style={{ bottom: 'calc(76px + env(safe-area-inset-bottom))' }}
+          >
             <PlaceCardsCarousel
               buildings={campusBuildings}
               onSelectPlace={handleSelectBuilding}
@@ -402,7 +416,10 @@ export function Layout() {
       {isMobile &&
         activeTab === 'map' &&
         (selectedFriend || selectedBuilding) && (
-          <div className="pointer-events-none absolute inset-x-0 bottom-[76px] z-20">
+          <div
+            className="pointer-events-none absolute inset-x-0 z-20"
+            style={{ bottom: 'calc(74px + env(safe-area-inset-bottom))' }}
+          >
             {selectedFriend ? (
               <FriendCard
                 friend={selectedFriend}

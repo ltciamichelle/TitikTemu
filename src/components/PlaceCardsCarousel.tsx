@@ -92,13 +92,15 @@ export function PlaceCardsCarousel({
               key={place.id}
               type="button"
               onClick={() => onSelectPlace(place.buildingId, place.floor)}
-              className={`group flex shrink-0 snap-start flex-col overflow-hidden rounded-[22px] bg-white p-2.5 text-left shadow-soft transition-transform duration-150 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
-                isMobile ? 'w-[186px]' : 'w-[172px]'
+              className={`group flex shrink-0 snap-start flex-col overflow-hidden rounded-[20px] bg-white p-2 text-left shadow-soft transition-transform duration-150 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary md:rounded-[22px] md:p-2.5 ${
+                isMobile ? 'w-[164px]' : 'w-[172px]'
               }`}
             >
               {/* Photo slot with floating floor badge (top-left, matching reference card) */}
               <div
-                className="relative flex h-[96px] w-full items-center justify-center overflow-hidden rounded-[15px]"
+                className={`relative flex w-full items-center justify-center overflow-hidden rounded-[14px] ${
+                  isMobile ? 'h-[80px]' : 'h-[96px]'
+                }`}
                 style={{ backgroundColor: place.accentBg }}
               >
                 {place.photo ? (

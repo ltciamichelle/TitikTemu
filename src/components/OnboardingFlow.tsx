@@ -394,8 +394,8 @@ export function OnboardingFlow() {
               </button>
             </div>
 
-            {/* Mobile-only center illustration (desktop shows it big on the left!) */}
-            <div className="my-4 lg:hidden">
+            {/* Mobile-only center illustration (scales neatly on smaller phone screens) */}
+            <div className="my-2 scale-90 sm:my-4 sm:scale-100 lg:hidden">
               <SplashVisual slide={step} />
             </div>
 

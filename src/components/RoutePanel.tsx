@@ -101,7 +101,7 @@ export function RoutePanel({
       aria-label={`Walking route to ${building.name}`}
       className={
         isSheet
-          ? 'pointer-events-auto mx-4 mb-3 flex flex-col gap-3 rounded-card bg-white p-4 shadow-soft'
+          ? 'pointer-events-auto mx-3 mb-2 flex max-h-[58dvh] flex-col gap-2.5 overflow-y-auto overscroll-contain rounded-card bg-white p-3.5 shadow-soft sm:mx-4 sm:mb-3 sm:gap-3 sm:p-4'
           : 'flex flex-col gap-3.5 rounded-card bg-[#F7FAF9] p-4 shadow-soft-sm'
       }
     >
